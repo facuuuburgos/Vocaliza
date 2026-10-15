@@ -1,8 +1,9 @@
 // Vocaliza — service worker
 // Siempre busca la versión más nueva en internet; si no hay conexión, usa la copia guardada.
 // No hace falta cambiar nada acá cuando actualices la app.
-const CACHE = 'vocaliza-cache';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+const CACHE = 'vocaliza-cache-2';
+const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png',
+  './piano/Ds1.mp3', './piano/Fs1.mp3', './piano/A1.mp3', './piano/C2.mp3', './piano/Ds2.mp3', './piano/Fs2.mp3', './piano/A2.mp3', './piano/C3.mp3', './piano/Ds3.mp3', './piano/Fs3.mp3', './piano/A3.mp3', './piano/C4.mp3', './piano/Ds4.mp3', './piano/Fs4.mp3', './piano/A4.mp3', './piano/C5.mp3', './piano/Ds5.mp3', './piano/Fs5.mp3', './piano/A5.mp3', './piano/C6.mp3', './piano/Ds6.mp3'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
