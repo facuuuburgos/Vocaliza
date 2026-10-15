@@ -149,7 +149,7 @@ body.playing .eq i{animation:eq .9s ease-in-out infinite}
   background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;
   transition:transform .45s var(--ease),opacity .3s,border-radius .4s}
 .scrim{position:fixed;inset:0;z-index:30;background:rgba(12,14,20,.32);opacity:0;pointer-events:none;transition:opacity .4s}
-body.pl-open .scrim{opacity:1}
+body.pl-open .scrim{opacity:1;pointer-events:auto}
 body.pl-open .player{box-shadow:0 -6px 40px rgba(12,14,20,.28),0 12px 36px rgba(12,14,20,.22)}
 .player.gone{transform:translateY(140%);opacity:0;pointer-events:none}
 .pbar{position:absolute;left:0;top:0;height:3px;background:var(--felt);width:0;transition:width .6s var(--ease)}
@@ -310,7 +310,7 @@ body.playing .art .note{display:none}
   </section>
 </div>
 
-<div class="scrim" aria-hidden="true"></div>
+<div class="scrim" id="scrim" aria-hidden="true"></div>
 <!-- REPRODUCTOR -->
 <div class="player gone" id="player" aria-label="Reproductor">
   <div class="pbar" id="pBar"></div>
@@ -377,7 +377,7 @@ body.playing .art .note{display:none}
    los alumnos vean el aviso "Vocaliza se actualizó" y para comprobar
    qué versión tiene cada uno (aparece al pie de "Mi rango").
    ===================================================================== */
-const VERSION = '1.6';
+const VERSION = '1.8';
 
 /* =====================================================================
    ESCALAS — para agregar o cambiar una, editá esta lista.
@@ -580,7 +580,7 @@ function previewNote(m) {
    REPRODUCCIÓN — se programa nota por nota, así los cambios de
    velocidad se escuchan al instante.
    ===================================================================== */
-const P = { playing: false, ending: false, bus: null, srcs: [], ui: [], timer: null, steps: [], si: 0, next: 0,
+const P = { playing: false, ending: false, bus: null, log: [], ui: [], timer: null, steps: [], si: 0, next: 0,
             root: null, dir: 1, shown: null, shownDir: 1, note: null, wake: null, pendingReload: false };
 const cur = () => ESCALAS[S.scale];
 function bounds(sc = cur()) { return { rmin: S.low - sc.min, rmax: S.high - sc.max }; }
@@ -611,37 +611,61 @@ function advance() {
   if (r < b.rmin) return false;
   P.root = r; return true;
 }
+// Cuánto se programa por adelantado: poco con la app a la vista (los cambios de velocidad se notan al instante)
+// y mucho en segundo plano, porque el iPhone frena los relojes de la página y si no el sonido se entrecorta.
+const AHEAD_FG = 0.15, AHEAD_BG = 40;
+const bg = () => document.visibilityState === 'hidden';
 function tick() {
   if (!P.playing || P.ending) return;
-  const horizon = ctx.currentTime + 0.14;
+  const now = ctx.currentTime;
+  const horizon = now + (bg() ? AHEAD_BG : AHEAD_FG);
   while (P.next < horizon) {
     if (P.si >= P.steps.length) {
       if (!advance()) { endAt(P.next); return; }
       beginRep(P.next);
     }
+    const rec = { t: P.next, root: P.root, dir: P.dir, steps: P.steps, si: P.si, srcs: [] };
     const s = P.steps[P.si++];
     const d = s.beats * 60 / S.bpm;
     if (s.k === 'cue') {
-      s.ms.forEach(m => playNote(m, P.next, d * 0.95, 0.55, P.bus, P.srcs));
+      s.ms.forEach(m => playNote(m, P.next, d * 0.95, 0.55, P.bus, rec.srcs));
       P.ui.push({ t: P.next, type: 'cue', d: d + 60 / S.bpm });
     } else if (s.k === 'note') {
-      playNote(s.m, P.next, d * s.gate, 0.9, P.bus, P.srcs);
+      playNote(s.m, P.next, d * s.gate, 0.9, P.bus, rec.srcs);
       P.ui.push({ t: P.next, type: 'beat' });
     }
+    P.log.push(rec);
     P.next += d;
   }
-  if (P.srcs.length > 400) P.srcs.splice(0, 200);
+  while (P.log.length && P.log[0].t < now - 4) P.log.shift();
 }
-function newBus() { P.bus = ctx.createGain(); P.bus.connect(master); P.srcs = []; }
+// Al volver a la app: se descarta lo programado de más y se sigue desde donde va sonando,
+// así la velocidad vuelve a responder al instante.
+function resync() {
+  if (!P.playing || !ctx) return;
+  const cut = ctx.currentTime + 0.12;
+  const i = P.log.findIndex(r => r.t >= cut);
+  if (i < 0) return;
+  const rec = P.log[i];
+  P.log.splice(i).forEach(r => r.srcs.forEach(x => { try { x.stop(0); } catch (e) {} }));
+  P.ui = P.ui.filter(ev => ev.t < rec.t);
+  clearTimeout(P.timer); clearInterval(P.timer);
+  P.ending = false;
+  P.root = rec.root; P.dir = rec.dir; P.steps = rec.steps; P.si = rec.si; P.next = rec.t;
+  if (rec.si === 0) P.ui.push({ t: rec.t, type: 'rep', root: rec.root, dir: rec.dir });
+  P.timer = setInterval(tick, 25); tick();
+}
+document.addEventListener('visibilitychange', () => { if (bg()) { if (P.playing && !P.ending) tick(); } else resync(); });
+function newBus() { P.bus = ctx.createGain(); P.bus.connect(master); P.log = []; }
 function cancelAudio() {
   clearInterval(P.timer); clearTimeout(P.timer); P.timer = null; P.ending = false;
   if (ctx && P.bus) {
-    const now = ctx.currentTime, bus = P.bus, srcs = P.srcs;
+    const now = ctx.currentTime, bus = P.bus, log = P.log || [];
     try { bus.gain.cancelScheduledValues(now); bus.gain.setValueAtTime(bus.gain.value, now); bus.gain.linearRampToValueAtTime(0, now + 0.06); } catch (e) {}
-    srcs.forEach(s => { try { s.stop(now + 0.1); } catch (e) {} });
+    log.forEach(r => r.srcs.forEach(x => { try { x.stop(now + 0.1); } catch (e) {} }));
     setTimeout(() => { try { bus.disconnect(); } catch (e) {} }, 400);
   }
-  P.bus = null; P.srcs = []; P.ui = [];
+  P.bus = null; P.log = []; P.ui = [];
   $('art').classList.remove('breath');
 }
 function runFrom(t) { cancelAudio(); newBus(); P.next = t; beginRep(t); P.timer = setInterval(tick, 25); tick(); }
@@ -876,6 +900,9 @@ function setOpen(open) { player.classList.toggle('open', open); document.body.cl
 let swiped = false, sy = null;
 $('pOpen').addEventListener('click', () => { if (swiped) { swiped = false; return; } ensureAudio(); setOpen(!player.classList.contains('open')); });
 $('pClose').addEventListener('click', () => setOpen(false));
+// tocar fuera del reproductor lo achica
+$('scrim').addEventListener('pointerdown', e => { e.preventDefault(); setOpen(false); });
+$('scrim').addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 $('phead').addEventListener('pointerdown', e => { sy = e.clientY; });
 $('phead').addEventListener('pointerup', e => {
   if (sy == null) return; const dy = e.clientY - sy; sy = null;
