@@ -28,7 +28,7 @@
   --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --f-body:"Figtree", "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
   --r:14px; --ease:cubic-bezier(.2,.9,.25,1);
-  --tabs-h:62px; --sys:#0A7AFF;
+  --tabs-h:62px; --head-h:56px; --sys:#0A7AFF;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#121419; --surface:#1B1E26; --ink:#ECEEF3; --muted:#9DA4B5; --line:#2D313C; --glass:rgba(27,30,38,.88);
@@ -49,7 +49,7 @@ html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
-  padding-block:calc(env(safe-area-inset-top, 0px) + 10px) calc(env(safe-area-inset-bottom, 0px) + var(--tabs-h) + var(--ph, 0px) + 24px)}
+  padding-block:calc(env(safe-area-inset-top, 0px) + var(--head-h) + 14px) calc(env(safe-area-inset-bottom, 0px) + var(--tabs-h) + var(--ph, 0px) + 24px)}
 button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
 .app{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
@@ -59,9 +59,10 @@ h1{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.015e
 .card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
 
 /* Header + logo */
-.top{display:flex;align-items:center;gap:10px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-.01em}
-.logo{width:34px;height:34px;flex:none;display:block;border-radius:9px;overflow:hidden}
+.top{position:fixed;top:0;left:0;right:0;z-index:35;background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top, 0px);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.top .in{max-width:760px;margin:0 auto;height:var(--head-h);display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:21px;letter-spacing:-.01em}
+.logo{width:32px;height:32px;flex:none;display:block;border-radius:9px;overflow:hidden}
 .logo .q{transform-box:view-box;transform-origin:44px 71px}
 body.playing .logo .q{animation:sway 1.6s ease-in-out infinite}
 @keyframes sway{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg)}}
@@ -148,7 +149,7 @@ body.playing .eq i{animation:eq .9s ease-in-out infinite}
   bottom:calc(env(safe-area-inset-bottom, 0px) + var(--tabs-h) + 8px);max-width:540px;margin:0 auto;
   background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;
   transition:transform .45s var(--ease),opacity .3s,border-radius .4s}
-.scrim{position:fixed;left:0;right:0;bottom:0;top:env(safe-area-inset-top, 0px);z-index:30;background:rgba(12,14,20,.32);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s,visibility 0s linear .35s}
+.scrim{position:fixed;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top, 0px) + var(--head-h) + 1px);z-index:30;background:rgba(12,14,20,.32);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s,visibility 0s linear .35s}
 body.pl-open .scrim{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .35s,visibility 0s}
 /* fundido de la lista hacia abajo, detrás del reproductor */
 .fade{position:fixed;left:0;right:0;bottom:0;z-index:29;pointer-events:none;height:calc(env(safe-area-inset-bottom, 0px) + var(--tabs-h) + 190px);background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) 0%, transparent) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 35%, color-mix(in srgb, var(--bg) 96%, transparent) 62%, var(--bg) 80%);transition:opacity .3s}
@@ -271,10 +272,8 @@ body.playing .art .note{display:none}
     </g>
   </symbol>
 </svg>
+<header class="top"><div class="in"><div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Vocaliza</div></div></header>
 <div class="app">
-  <header class="top">
-    <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Vocaliza</div>
-  </header>
 
   <!-- ESCALAS -->
   <section class="view" id="vScales" hidden>
@@ -381,7 +380,7 @@ body.playing .art .note{display:none}
    los alumnos vean el aviso "Vocaliza se actualizó" y para comprobar
    qué versión tiene cada uno (aparece al pie de "Mi rango").
    ===================================================================== */
-const VERSION = '2.0';
+const VERSION = '2.1';
 
 /* =====================================================================
    ESCALAS — para agregar o cambiar una, editá esta lista.
