@@ -148,8 +148,11 @@ body.playing .eq i{animation:eq .9s ease-in-out infinite}
   bottom:calc(env(safe-area-inset-bottom, 0px) + var(--tabs-h) + 8px);max-width:540px;margin:0 auto;
   background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;
   transition:transform .45s var(--ease),opacity .3s,border-radius .4s}
-.scrim{position:fixed;inset:0;z-index:30;background:rgba(12,14,20,.32);opacity:0;pointer-events:none;transition:opacity .4s}
-body.pl-open .scrim{opacity:1;pointer-events:auto}
+.scrim{position:fixed;left:0;right:0;bottom:0;top:env(safe-area-inset-top, 0px);z-index:30;background:rgba(12,14,20,.32);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .35s,visibility 0s linear .35s}
+body.pl-open .scrim{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .35s,visibility 0s}
+/* fundido de la lista hacia abajo, detrás del reproductor */
+.fade{position:fixed;left:0;right:0;bottom:0;z-index:29;pointer-events:none;height:calc(env(safe-area-inset-bottom, 0px) + var(--tabs-h) + 190px);background:linear-gradient(to bottom, color-mix(in srgb, var(--bg) 0%, transparent) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 35%, color-mix(in srgb, var(--bg) 96%, transparent) 62%, var(--bg) 80%);transition:opacity .3s}
+body.noplayer .fade{opacity:0}
 body.pl-open .player{box-shadow:0 -6px 40px rgba(12,14,20,.28),0 12px 36px rgba(12,14,20,.22)}
 .player.gone{transform:translateY(140%);opacity:0;pointer-events:none}
 .pbar{position:absolute;left:0;top:0;height:3px;background:var(--felt);width:0;transition:width .6s var(--ease)}
@@ -310,6 +313,7 @@ body.playing .art .note{display:none}
   </section>
 </div>
 
+<div class="fade" aria-hidden="true"></div>
 <div class="scrim" id="scrim" aria-hidden="true"></div>
 <!-- REPRODUCTOR -->
 <div class="player gone" id="player" aria-label="Reproductor">
@@ -377,7 +381,7 @@ body.playing .art .note{display:none}
    los alumnos vean el aviso "Vocaliza se actualizó" y para comprobar
    qué versión tiene cada uno (aparece al pie de "Mi rango").
    ===================================================================== */
-const VERSION = '1.8';
+const VERSION = '2.0';
 
 /* =====================================================================
    ESCALAS — para agregar o cambiar una, editá esta lista.
@@ -458,7 +462,7 @@ const allFetched = Promise.all(Object.entries(SAMPLES).map(([name, m]) =>
   fetch('piano/' + name + '.mp3').then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }).then(ab => { raw[m] = ab; }).catch(() => {})
 ));
 
-let ctx = null, master = null, wave = null, silentEl = null, idleT = null;
+let ctx = null, master = null, wave = null, silentEl = null, idleT = null, audioUnlocked = false;
 function decode(ab) {
   return new Promise((res, rej) => { try { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); } catch (e) { rej(e); } });
 }
@@ -489,7 +493,11 @@ function createAudio() {
 function ensureAudio() {
   createAudio();
   clearTimeout(idleT);
-  if (ctx.state !== 'running') { try { ctx.resume(); } catch (e) {} }
+  if (ctx.state !== 'running') {
+    try { const r = ctx.resume(); if (r && r.then) r.then(onAudioRunning, () => {}); } catch (e) {}
+  } else onAudioRunning();
+  // El iPhone solo habilita el sonido si dentro del mismo toque empieza a sonar algo: un sonido mudo de 1 muestra alcanza
+  try { const b = ctx.createBuffer(1, 1, 22050), src = ctx.createBufferSource(); src.buffer = b; src.connect(ctx.destination); src.start(0); } catch (e) {}
   if (!navigator.audioSession) {   // iPhones viejos: truco para sonar en modo silencio
     try {
       if (!silentEl) { silentEl = new Audio(); silentEl.src = silentWavURL(); silentEl.loop = true; silentEl.setAttribute('playsinline', ''); }
@@ -568,12 +576,22 @@ function playNote(m, t, dur, vel, dest, list) {
   return { g, src: o1 };
 }
 let preview = null;
-function previewNote(m) {
-  ensureAudio();
+// Si el audio todavía no arrancó (primer toque de todos), la nota queda pendiente y suena apenas se habilita.
+let pendingNote = null;
+function onAudioRunning() {
+  audioUnlocked = true;
+  if (pendingNote != null && ctx.state === 'running') { const m = pendingNote; pendingNote = null; soundPreview(m); }
+}
+function soundPreview(m) {
   const now = ctx.currentTime;
   if (preview) { try { preview.g.gain.cancelScheduledValues(now); preview.g.gain.setTargetAtTime(0, now, 0.04); } catch (e) {} }
   preview = playNote(m, now + 0.01, 0.9, 0.85);
   sleepAudioSoon(2200);
+}
+function previewNote(m) {
+  ensureAudio();
+  if (ctx.state === 'running') { pendingNote = null; soundPreview(m); }
+  else { pendingNote = m; setTimeout(() => { if (pendingNote === m) pendingNote = null; }, 1500); }
 }
 
 /* =====================================================================
@@ -938,6 +956,7 @@ function setTab(t) {
     renderPlayer(false);
   }
   player.classList.toggle('gone', !S.setup);
+  document.body.classList.toggle('noplayer', !S.setup);
   window.scrollTo(0, 0);
 }
 $('tabScales').addEventListener('click', () => { if (!S.setup) { S.setup = true; save(); } setTab('scales'); });
@@ -966,11 +985,13 @@ try {
   }
 } catch (e) {}
 /* El primer toque en cualquier parte habilita el sonido (exigencia del iPhone) */
+// Se repite en cada toque hasta que el iPhone confirma que el sonido quedó habilitado.
+const UNLOCK_EVENTS = ['touchend', 'pointerup', 'click', 'keydown'];
 const firstTouch = () => {
-  ['touchend', 'click', 'keydown'].forEach(ev => document.removeEventListener(ev, firstTouch, true));
-  ensureAudio(); if (!P.playing) sleepAudioSoon(2200);
+  if (audioUnlocked) { UNLOCK_EVENTS.forEach(ev => document.removeEventListener(ev, firstTouch, true)); return; }
+  ensureAudio(); if (!P.playing && pendingNote == null) sleepAudioSoon(2200);
 };
-['touchend', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, firstTouch, true));
+UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, firstTouch, true));
 try { createAudio(); } catch (e) {}
 
 /* ---------- Inicio ---------- */
