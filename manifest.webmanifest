@@ -1,0 +1,16 @@
+{
+  "name": "Vocaliza",
+  "short_name": "Vocaliza",
+  "description": "Vocalizaciones con piano dentro de tu rango vocal",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F2F3F6",
+  "theme_color": "#B3263A",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

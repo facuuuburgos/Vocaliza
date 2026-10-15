@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vocaliza</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#B3263A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Vocaliza">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: una sala de ensayo — teclado de piano como eje, fieltro rojo del piano como acento, papel frío de partitura. */
+:root{
+  --bg:#F2F3F6; --surface:#FFFFFF; --ink:#1B1F2A; --muted:#5D6476; --line:#DADDE5;
+  --felt:#B3263A; --felt-ink:#FFFFFF; --felt-soft:#F7E4E7; --felt-line:#E7B9C0;
+  --ivory:#FCFBF7; --ivory-edge:#CFCBC1; --ebony:#22252D; --key-range:#F2CDD3; --key-range-b:#6E2A36;
+  --key-on:#B3263A; --ok:#2F7A4F; --warn:#9A5B12;
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Figtree", "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121419; --surface:#1B1E26; --ink:#ECEEF3; --muted:#9DA4B5; --line:#2D313C;
+  --felt:#E25B6E; --felt-ink:#1A0B0F; --felt-soft:#3A1E25; --felt-line:#6B2F3A;
+  --ivory:#ECEAE3; --ivory-edge:#8F8B82; --ebony:#0C0D11; --key-range:#E7A9B3; --key-range-b:#8E3546;
+  --key-on:#E25B6E; --ok:#6CC08F; --warn:#E3A24F; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121419; --surface:#1B1E26; --ink:#ECEEF3; --muted:#9DA4B5; --line:#2D313C;
+  --felt:#E25B6E; --felt-ink:#1A0B0F; --felt-soft:#3A1E25; --felt-line:#6B2F3A;
+  --ivory:#ECEAE3; --ivory-edge:#8F8B82; --ebony:#0C0D11; --key-range:#E7A9B3; --key-range-b:#8E3546;
+  --key-on:#E25B6E; --ok:#6CC08F; --warn:#E3A24F; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:calc(env(safe-area-inset-top, 0px) + 10px) calc(env(safe-area-inset-bottom, 0px) + 28px)}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
+.app{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+/* Header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:-.01em}
+.brand svg{width:30px;height:30px;flex:none}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600}
+.chip small{font-weight:500;color:var(--muted)}
+.chip .edit{color:var(--felt)}
+
+/* Cards */
+.card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.015em}
+h1{font-size:28px;line-height:1.1}
+h2{font-size:19px}
+.muted{color:var(--muted)}
+
+/* Keyboard */
+.kbwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;scrollbar-width:thin}
+.kb{position:relative;--w:42px;--bw:calc(var(--w) * .62);height:var(--kh,170px);margin:0 auto;user-select:none;-webkit-user-select:none}
+.kb .whites{display:flex;height:100%}
+.k{border:0;padding:0;margin:0;-webkit-tap-highlight-color:transparent}
+.k.w{width:var(--w);flex:none;height:100%;background:var(--ivory);border:1px solid var(--ivory-edge);border-left-width:0;border-radius:0 0 7px 7px;position:relative;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+.k.w:first-child{border-left-width:1px}
+.k.b{position:absolute;top:0;width:var(--bw);height:62%;background:var(--ebony);border-radius:0 0 5px 5px;z-index:2;box-shadow:inset 0 -4px 0 rgba(255,255,255,.07)}
+.k .lbl{font-size:11px;font-weight:600;color:#6F6A60;pointer-events:none}
+.k.w.mid::after{content:"";position:absolute;top:10px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:#8C877C}
+.k.w.in{background:var(--key-range)}
+.k.b.in{background:var(--key-range-b)}
+.k.w.on{background:var(--key-on)}
+.k.b.on{background:var(--key-on)}
+.k.w.on .lbl{color:#fff}
+.k.w.cue{background:#E9E3D3}
+.k.b.cue{background:#555048}
+.k .tag{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--felt);color:var(--felt-ink);border-radius:5px;padding:2px 4px;pointer-events:none;white-space:nowrap}
+.k.b .tag{bottom:6px}
+
+/* Range view */
+.range-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.ends{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.end{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px}
+.end b{font-family:var(--f-display);font-size:26px;line-height:1.1}
+.end span{font-size:13px;color:var(--muted);font-weight:600}
+.end[aria-pressed="true"]{border-color:var(--felt);background:var(--felt-soft)}
+.end[aria-pressed="true"] span{color:var(--felt)}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.preset{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:600}
+.preset small{color:var(--muted);font-weight:500}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:14px 20px;font-weight:700;font-size:16px;background:var(--felt);color:var(--felt-ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.rowbtns{display:flex;gap:10px;flex-wrap:wrap}
+.hint{font-size:14px;color:var(--muted)}
+
+/* Practice */
+.practice{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:880px){.practice{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}}
+.stage{display:flex;flex-direction:column;gap:16px}
+.stage-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.stage-head > div{min-width:0}
+.key-now{text-align:right;flex:none}
+.key-now b{display:block;font-family:var(--f-display);font-weight:700;font-size:44px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.key-now span{font-size:13px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+.status{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--muted);min-height:20px}
+.status i{width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+.status.sing{color:var(--felt)} .status.sing i{background:var(--felt)}
+.status.breath{color:var(--ink)} .status.breath i{background:var(--ink)}
+.status.warn{color:var(--warn)} .status.warn i{background:var(--warn)}
+.pattern{display:flex;flex-wrap:wrap;gap:6px}
+.n{display:inline-flex;align-items:baseline;gap:1px;border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-weight:700;font-size:15px;background:var(--bg);transition:background .08s,color .08s}
+.n sub{font-size:10px;font-weight:600;color:var(--muted);bottom:0}
+.n.hold{padding-right:30px;position:relative}
+.n.hold::after{content:"";position:absolute;right:8px;top:50%;width:16px;height:2px;background:currentColor;opacity:.5}
+.n.on{background:var(--felt);border-color:var(--felt);color:var(--felt-ink)}
+.n.on sub{color:var(--felt-ink)}
+.mini{--kh:96px}
+
+.transport{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;gap:6px}
+.tbtn{display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:transparent;padding:4px 0;font-size:11.5px;font-weight:600;color:var(--muted);line-height:1.15;text-align:center}
+.tbtn .ic{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--ink)}
+.tbtn svg{width:22px;height:22px}
+.tbtn.play .ic{width:68px;height:68px;background:var(--felt);border:0;color:var(--felt-ink)}
+.tbtn.play svg{width:30px;height:30px}
+.tbtn:disabled{opacity:.4}
+
+.controls{display:flex;flex-direction:column;gap:18px}
+.speed-row{display:flex;align-items:center;gap:10px}
+.speed-row input{flex:1;min-width:0;accent-color:var(--felt);height:28px}
+.round{width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:20px;font-weight:600;display:grid;place-items:center;line-height:1}
+.speed-val{display:flex;align-items:baseline;justify-content:space-between}
+.speed-val b{font-family:var(--f-display);font-size:24px;font-variant-numeric:tabular-nums}
+.speed-val b small{font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:600;margin-left:4px}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;border-radius:7px;padding:9px 8px;font-size:14px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--felt-soft);color:var(--felt)}
+.opt{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.opt label{font-weight:600;font-size:15px}
+.opt label small{display:block;font-weight:500;color:var(--muted);font-size:13px}
+.switch{position:relative;width:50px;height:30px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.switch span{position:absolute;inset:0;border-radius:999px;background:var(--line);transition:background .15s;pointer-events:none}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.switch input:checked + span{background:var(--felt)}
+.switch input:checked + span::after{transform:translateX(20px)}
+.switch input:focus-visible + span{outline:2px solid var(--felt);outline-offset:2px}
+
+.list{display:flex;flex-direction:column;gap:18px}
+.group{display:flex;flex-direction:column;gap:6px}
+.group h3{margin:0 0 2px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 14px}
+.item .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.item .nm{font-weight:700;font-size:15.5px}
+.item .pt{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .no{font-size:12.5px;color:var(--warn);font-weight:600}
+.item .num{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;width:20px;flex:none}
+.item[aria-current="true"]{border-color:var(--felt);background:var(--felt-soft)}
+.item[aria-current="true"] .num{color:var(--felt)}
+.item.off .nm{color:var(--muted)}
+.foot{font-size:13px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--felt)"/><rect x="6" y="19" width="4" height="7" rx="1.5" fill="var(--felt-ink)"/><rect x="11.5" y="15" width="4" height="11" rx="1.5" fill="var(--felt-ink)"/><rect x="17" y="11" width="4" height="15" rx="1.5" fill="var(--felt-ink)"/><rect x="22.5" y="6" width="4" height="20" rx="1.5" fill="var(--felt-ink)"/></svg>
+      Vocaliza
+    </div>
+    <button class="chip" id="rangeChip" type="button" hidden><small>Tu rango</small><span id="rangeChipTx">Do3 – Sol4</span><span class="edit">Cambiar</span></button>
+  </header>
+
+  <!-- RANGO -->
+  <section id="vRange" hidden>
+    <div class="range-grid">
+      <div class="card" style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span class="eyebrow">Paso 1</span>
+          <h1>¿Cuál es tu rango vocal?</h1>
+          <p class="hint" style="margin:0">Elegí la nota más grave y la más aguda que podés cantar cómodo. Tocá una tecla para escucharla y marcarla. Las vocalizaciones van a empezar en tu nota grave y subir de a medio tono hasta tu nota aguda.</p>
+        </div>
+        <div class="ends">
+          <button class="end" id="endLow" type="button" aria-pressed="true"><span>Nota más grave</span><b id="lowTx">Do3</b></button>
+          <button class="end" id="endHigh" type="button" aria-pressed="false"><span>Nota más aguda</span><b id="highTx">Sol4</b></button>
+        </div>
+        <div class="kbwrap" id="rangeWrap"><div class="kb" id="rangeKb"></div></div>
+        <p class="hint" style="margin:0" id="rangeInfo"></p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span class="eyebrow">Atajos por tipo de voz</span>
+          <div class="presets" id="presets"></div>
+        </div>
+        <div class="rowbtns">
+          <button class="btn" id="saveRange" type="button">Guardar y vocalizar</button>
+          <button class="btn ghost" id="cancelRange" type="button" hidden>Volver</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRACTICA -->
+  <section id="vPractice" hidden>
+    <div class="practice">
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <div class="card stage">
+          <div class="stage-head">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <span class="eyebrow" id="scaleGroup">Rossini</span>
+              <h1 id="scaleName">Rossini</h1>
+              <div class="status" id="status"><i></i><span id="statusTx">Listo para empezar</span></div>
+            </div>
+            <div class="key-now">
+              <span>Empieza en</span>
+              <b id="keyNow">Do3</b>
+              <span id="repNow">Repetición 1 de 13</span>
+            </div>
+          </div>
+          <div class="pattern" id="pattern" aria-label="Notas de la escala"></div>
+          <div class="kbwrap" id="miniWrap"><div class="kb mini" id="miniKb"></div></div>
+          <div class="transport">
+            <button class="tbtn" id="bPrevScale" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6l-6 6 6 6M19 6l-6 6 6 6"/></svg></span>Escala anterior</button>
+            <button class="tbtn" id="bDown" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>Medio tono abajo</button>
+            <button class="tbtn play" id="bPlay" type="button" aria-label="Reproducir"><span class="ic" id="playIc"></span><span id="playTx">Reproducir</span></button>
+            <button class="tbtn" id="bUp" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></span>Medio tono arriba</button>
+            <button class="tbtn" id="bNextScale" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6l6 6-6 6M5 6l6 6-6 6"/></svg></span>Escala siguiente</button>
+          </div>
+        </div>
+
+        <div class="card controls">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="speed-val"><span class="eyebrow">Velocidad</span><b id="bpmTx">100<small>pulsos/min</small></b></div>
+            <div class="speed-row">
+              <button class="round" id="bSlower" type="button" aria-label="Más lento">−</button>
+              <input type="range" id="bpm" min="40" max="200" step="2" value="100" aria-label="Velocidad en pulsos por minuto">
+              <button class="round" id="bFaster" type="button" aria-label="Más rápido">+</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span class="eyebrow">Al llegar a tu nota más aguda</span>
+            <div class="seg" id="topMode">
+              <button type="button" data-v="detener" aria-pressed="true">Terminar</button>
+              <button type="button" data-v="bajar" aria-pressed="false">Bajar de vuelta</button>
+            </div>
+          </div>
+          <div class="opt">
+            <label for="cue">Acorde antes de cada repetición<small>Te da la tonalidad nueva y un momento para respirar</small></label>
+            <span class="switch"><input type="checkbox" id="cue" checked><span></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card list" id="list"></div>
+    </div>
+  </section>
+  <p class="foot">Do central = Do4 (marcado con un punto en el teclado)</p>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================================================================
+   ESCALAS — para agregar o cambiar una, editá esta lista.
+   Escribí las notas separadas por espacios:
+     do re mi fa sol la si      → primera octava
+     do2 re2 mi2 ...            → una octava más arriba
+     _                          → la nota anterior se mantiene un pulso más
+   ===================================================================== */
+const ESCALAS = [
+  { grupo: 'Rossini',       nombre: 'Rossini',                                patron: 'do re mi fa sol la si do2 re2 do2 si la sol fa mi re do' },
+  { grupo: 'Rossini',       nombre: 'Rossini con repetición',                 patron: 'do mi sol do2 mi2 sol2 sol2 sol2 fa2 re2 si sol fa re do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor',                          patron: 'do mi sol do2 sol mi do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor con repetición',           patron: 'do mi sol do2 do2 do2 do2 sol mi do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor descendente',              patron: 'do2 sol mi do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor descendente y ascendente', patron: 'do2 sol mi do mi sol do2' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor sostenido',                patron: 'do mi sol do2 _ _ _ sol mi do' },
+  { grupo: '5 tonos',       nombre: '5 tonos',                                patron: 'do re mi fa sol fa mi re do' },
+  { grupo: '5 tonos',       nombre: '5 tonos descendente',                    patron: 'sol fa mi re do' },
+  { grupo: '5 tonos',       nombre: '5 tonos descendente y ascendente',       patron: 'sol fa mi re do re mi fa sol' },
+  { grupo: '5 tonos',       nombre: '5 tonos con repetición',                 patron: 'do re mi fa sol sol sol sol fa mi re do' },
+  { grupo: '5 tonos',       nombre: '5 tonos sostenido',                      patron: 'do re mi fa sol _ _ _ fa mi re do' },
+];
+
+const PRESETS = [
+  { nombre: 'Soprano',   low: 60, high: 81 },
+  { nombre: 'Mezzo',     low: 57, high: 77 },
+  { nombre: 'Contralto', low: 53, high: 74 },
+  { nombre: 'Tenor',     low: 48, high: 69 },
+  { nombre: 'Barítono',  low: 45, high: 65 },
+  { nombre: 'Bajo',      low: 40, high: 62 },
+];
+
+/* ---------- Notas ---------- */
+const NAMES = ['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'];
+const STEP = { do:0, re:2, mi:4, fa:5, sol:7, la:9, si:11 };
+const isBlack = m => [1,3,6,8,10].includes(((m % 12) + 12) % 12);
+const nn = m => NAMES[m % 12] + (Math.floor(m / 12) - 1);
+const nnHTML = m => NAMES[m % 12] + '<sub>' + (Math.floor(m / 12) - 1) + '</sub>';
+
+function parsePattern(str) {
+  const out = [];
+  for (const tk of str.trim().split(/\s+/)) {
+    if (tk === '_') { if (out.length) out[out.length - 1].beats++; continue; }
+    const m = tk.toLowerCase().match(/^(do|re|mi|fa|sol|la|si)(#|b)?(\d)?$/);
+    if (!m) { console.warn('Nota no reconocida:', tk); continue; }
+    let off = STEP[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0);
+    if (m[3]) off += 12 * (parseInt(m[3], 10) - 1);
+    out.push({ off, beats: 1 });
+  }
+  return out;
+}
+ESCALAS.forEach(e => {
+  e.notas = parsePattern(e.patron);
+  const offs = e.notas.map(n => n.off);
+  e.min = Math.min(...offs); e.max = Math.max(...offs); e.span = e.max - e.min;
+});
+
+/* ---------- Estado guardado ---------- */
+const KEY = 'vocaliza-v1';
+const DEF = { low: 48, high: 67, bpm: 100, scale: 0, cue: true, top: 'detener', setup: false };
+let S = Object.assign({}, DEF);
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign({}, DEF, JSON.parse(raw)); } catch (e) {}
+S.scale = Math.min(Math.max(0, S.scale | 0), ESCALAS.length - 1);
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ---------- Audio ---------- */
+let ctx = null, master = null, wave = null, unlocked = false;
+function ensureAudio() {
+  if (!ctx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    ctx = new AC();
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 3;
+    master = ctx.createGain(); master.gain.value = 0.85;
+    master.connect(comp); comp.connect(ctx.destination);
+    const amps = [0, 1, 0.5, 0.32, 0.2, 0.13, 0.08, 0.05, 0.03, 0.02];
+    const real = new Float32Array(amps.length), imag = new Float32Array(amps);
+    wave = ctx.createPeriodicWave(real, imag);
+    requestAnimationFrame(uiLoop);
+  }
+  if (ctx.state !== 'running') { try { ctx.resume(); } catch (e) {} }
+  unlockIOS();
+}
+function silentWavURL() {
+  const n = 4000, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+  w(36, 'data'); v.setUint32(40, n, true);
+  for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+function unlockIOS() {
+  if (unlocked) return; unlocked = true;
+  // Para que el iPhone suene aunque tenga activado el modo silencio
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+  try { const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource(); s.buffer = b; s.connect(ctx.destination); s.start(0); } catch (e) {}
+  if (!navigator.audioSession) {
+    try { const a = new Audio(); a.src = silentWavURL(); a.loop = true; a.setAttribute('playsinline', ''); const p = a.play(); if (p) p.catch(() => {}); } catch (e) {}
+  }
+}
+
+const freq = m => 440 * Math.pow(2, (m - 69) / 12);
+function pianoNote(m, t, dur, dest, vel, nodes) {
+  const f = freq(m);
+  const g = ctx.createGain();
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.6;
+  lp.frequency.setValueAtTime(Math.min(f * 9, 16000), t);
+  lp.frequency.setTargetAtTime(Math.min(f * 3.2, 9000), t + 0.01, 0.5);
+  const o1 = ctx.createOscillator(); o1.setPeriodicWave(wave); o1.frequency.value = f;
+  const o2 = ctx.createOscillator(); o2.setPeriodicWave(wave); o2.frequency.value = f; o2.detune.value = 5;
+  const g2 = ctx.createGain(); g2.gain.value = 0.35;
+  o1.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(g); g.connect(dest);
+  const peak = 0.26 * vel * (m < 52 ? 1.15 : m > 76 ? 0.8 : 1);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(peak, t + 0.008);
+  g.gain.setTargetAtTime(peak * 0.42, t + 0.01, 0.22);
+  if (dur > 0.9) g.gain.setTargetAtTime(peak * 0.2, t + 0.8, 1.8);
+  g.gain.setTargetAtTime(0.0001, t + dur, 0.07);
+  const end = t + dur + 0.5;
+  o1.start(t); o2.start(t); o1.stop(end); o2.stop(end);
+  nodes.push(o1, o2);
+}
+
+/* ---------- Reproducción ---------- */
+const P = { playing: false, reps: [], timer: null, ui: [], dir: 1, root: null, shown: null, wake: null, pendingReload: false };
+
+function bounds(sc = ESCALAS[S.scale]) {
+  return { rmin: S.low - sc.min, rmax: S.high - sc.max };
+}
+function fits(sc) { const b = bounds(sc); return b.rmax >= b.rmin; }
+function clampRoot(r) { const b = bounds(); return Math.max(b.rmin, Math.min(b.rmax, r)); }
+
+function scheduleRep(t0) {
+  const sc = ESCALAS[S.scale];
+  const root = P.root;
+  const beat = 60 / S.bpm;
+  const g = ctx.createGain(); g.gain.value = 1; g.connect(master);
+  const rep = { g, nodes: [] }; P.reps.push(rep);
+  let t = t0;
+  P.ui.push({ t, type: 'rep', root, dir: P.dir });
+  if (S.cue) {
+    const chord = [root, root + 4, root + 7];
+    if (root - 12 >= 28) chord.unshift(root - 12);
+    const cueDur = beat * 2;
+    chord.forEach(m => pianoNote(m, t, cueDur * 0.95, g, 0.55, rep.nodes));
+    P.ui.push({ t, type: 'cue', keys: chord });
+    t += cueDur;
+    P.ui.push({ t, type: 'cueoff' });
+    t += beat;
+  }
+  sc.notas.forEach((n, i) => {
+    const last = i === sc.notas.length - 1;
+    const beats = n.beats + (last ? 1 : 0);
+    const d = beats * beat;
+    const m = root + n.off;
+    pianoNote(m, t, d * (n.beats > 1 || last ? 0.97 : 0.88), g, 0.95, rep.nodes);
+    P.ui.push({ t, type: 'on', idx: i, m });
+    P.ui.push({ t: t + d * 0.9, type: 'off', idx: i, m });
+    t += d;
+  });
+  t += beat * (S.cue ? 1 : 2);
+  const wait = Math.max(0, (t - ctx.currentTime - 0.3) * 1000);
+  P.timer = setTimeout(() => nextRep(t), wait);
+}
+
+function nextRep(t) {
+  if (!P.playing) return;
+  const b = bounds();
+  let r = P.root + P.dir;
+  if (r > b.rmax) {
+    if (S.top === 'bajar' && P.root - 1 >= b.rmin) { P.dir = -1; r = P.root - 1; }
+    else return finish(t);
+  } else if (r < b.rmin) {
+    return finish(t);
+  }
+  P.root = r;
+  scheduleRep(t);
+}
+
+function finish(t) {
+  P.timer = setTimeout(() => {
+    stopPlayback();
+    P.root = bounds().rmin; P.dir = 1; P.shown = P.root;
+    setStatus('done', S.top === 'bajar' ? 'Terminaste: subiste y bajaste todo tu rango' : 'Terminaste: llegaste a tu nota más aguda');
+    renderStage();
+  }, Math.max(0, (t - ctx.currentTime) * 1000));
+}
+
+function cancelAudio() {
+  clearTimeout(P.timer); P.timer = null;
+  if (ctx) {
+    const now = ctx.currentTime;
+    P.reps.forEach(rep => {
+      try { rep.g.gain.cancelScheduledValues(now); rep.g.gain.setValueAtTime(rep.g.gain.value, now); rep.g.gain.linearRampToValueAtTime(0, now + 0.05); } catch (e) {}
+      rep.nodes.forEach(o => { try { o.stop(now + 0.08); } catch (e) {} });
+      setTimeout(() => { try { rep.g.disconnect(); } catch (e) {} }, 300);
+    });
+  }
+  P.reps = []; P.ui = [];
+  clearLit();
+}
+
+function startPlayback() {
+  ensureAudio();
+  if (!fits(ESCALAS[S.scale])) { setStatus('warn', 'Esta escala no entra en tu rango'); return; }
+  if (P.root == null) P.root = bounds().rmin;
+  P.root = clampRoot(P.root);
+  cancelAudio();
+  P.playing = true;
+  scheduleRep(ctx.currentTime + 0.08);
+  wakeOn();
+  renderPlay();
+}
+function stopPlayback() {
+  cancelAudio();
+  P.playing = false;
+  wakeOff();
+  renderPlay();
+  if (P.pendingReload) location.reload();
+}
+function restartIfPlaying() {
+  if (P.playing) { cancelAudio(); scheduleRep(ctx.currentTime + 0.06); }
+}
+
+async function wakeOn() { try { if ('wakeLock' in navigator && !P.wake) { P.wake = await navigator.wakeLock.request('screen'); P.wake.addEventListener('release', () => { P.wake = null; }); } } catch (e) { P.wake = null; } }
+function wakeOff() { try { if (P.wake) P.wake.release(); } catch (e) {} P.wake = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && P.playing) wakeOn(); });
+
+/* ---------- UI sincronizada con el audio ---------- */
+let miniKeys = {}, rangeKeys = {};
+function clearLit() {
+  document.querySelectorAll('.k.on, .k.cue').forEach(k => k.classList.remove('on', 'cue'));
+  document.querySelectorAll('.n.on').forEach(n => n.classList.remove('on'));
+}
+function uiLoop() {
+  if (ctx) {
+    const now = ctx.currentTime - (ctx.outputLatency || 0) * 0.5;
+    while (P.ui.length && P.ui[0].t <= now) applyUI(P.ui.shift());
+  }
+  requestAnimationFrame(uiLoop);
+}
+function applyUI(ev) {
+  if (ev.type === 'rep') {
+    P.shown = ev.root;
+    renderStage();
+    if (!S.cue) setStatus('sing', 'Cantá');
+  } else if (ev.type === 'cue') {
+    setStatus('breath', 'Escuchá el acorde y respirá');
+    ev.keys.forEach(m => miniKeys[m] && miniKeys[m].classList.add('cue'));
+  } else if (ev.type === 'cueoff') {
+    document.querySelectorAll('.k.cue').forEach(k => k.classList.remove('cue'));
+    setStatus('sing', 'Cantá');
+  } else if (ev.type === 'on') {
+    const chip = patEl.children[ev.idx]; if (chip) chip.classList.add('on');
+    const k = miniKeys[ev.m]; if (k) { k.classList.add('on'); scrollIntoKey(k); }
+  } else if (ev.type === 'off') {
+    const chip = patEl.children[ev.idx]; if (chip) chip.classList.remove('on');
+    const k = miniKeys[ev.m]; if (k) k.classList.remove('on');
+  }
+}
+function scrollIntoKey(k) {
+  const w = $('miniWrap'); if (w.scrollWidth <= w.clientWidth) return;
+  const x = k.offsetLeft - w.clientWidth / 2;
+  if (Math.abs(w.scrollLeft - x) > w.clientWidth * 0.3) w.scrollTo({ left: x, behavior: 'smooth' });
+}
+
+/* ---------- Teclado ---------- */
+function buildKeyboard(el, lo, hi, W) {
+  if (isBlack(lo)) lo--; if (isBlack(hi)) hi++;
+  el.innerHTML = ''; el.style.setProperty('--w', W + 'px');
+  const keys = {}, whites = document.createElement('div'); whites.className = 'whites';
+  let count = 0;
+  for (let m = lo; m <= hi; m++) {
+    if (isBlack(m)) continue;
+    const k = document.createElement('button'); k.type = 'button'; k.className = 'k w'; k.dataset.m = m;
+    k.setAttribute('aria-label', nn(m));
+    if (m % 12 === 0) { const s = document.createElement('span'); s.className = 'lbl'; s.textContent = nn(m); k.appendChild(s); }
+    if (m === 60) k.classList.add('mid');
+    whites.appendChild(k); keys[m] = k; count++;
+  }
+  el.appendChild(whites);
+  let wi = 0;
+  for (let m = lo; m <= hi; m++) {
+    if (!isBlack(m)) { wi++; continue; }
+    const k = document.createElement('button'); k.type = 'button'; k.className = 'k b'; k.dataset.m = m;
+    k.setAttribute('aria-label', nn(m));
+    k.style.left = 'calc(' + wi + ' * var(--w) - var(--bw) / 2)';
+    el.appendChild(k); keys[m] = k;
+  }
+  el.style.width = 'calc(' + count + ' * var(--w))';
+  return keys;
+}
+
+/* ---------- Vista: rango ---------- */
+const $ = id => document.getElementById(id);
+let editing = 'low';
+let draft = { low: S.low, high: S.high };
+const KB_LO = 36, KB_HI = 84; // Do2 a Do6
+
+function openRange() {
+  if (P.playing) stopPlayback();
+  draft = { low: S.low, high: S.high }; editing = 'low';
+  $('vPractice').hidden = true; $('vRange').hidden = false; $('rangeChip').hidden = true;
+  $('cancelRange').hidden = !S.setup;
+  rangeKeys = buildKeyboard($('rangeKb'), KB_LO, KB_HI, 42);
+  paintRange();
+  requestAnimationFrame(() => {
+    const k = rangeKeys[draft.low], w = $('rangeWrap');
+    if (k) w.scrollLeft = k.offsetLeft - 60;
+  });
+}
+function paintRange() {
+  $('lowTx').textContent = nn(draft.low); $('highTx').textContent = nn(draft.high);
+  $('endLow').setAttribute('aria-pressed', editing === 'low'); $('endHigh').setAttribute('aria-pressed', editing === 'high');
+  Object.entries(rangeKeys).forEach(([m, k]) => {
+    m = +m;
+    k.classList.toggle('in', m >= draft.low && m <= draft.high);
+    const old = k.querySelector('.tag'); if (old) old.remove();
+    if (m === draft.low || m === draft.high) {
+      const t = document.createElement('span'); t.className = 'tag';
+      t.textContent = m === draft.low && m === draft.high ? 'Única' : m === draft.low ? 'Grave' : 'Aguda';
+      k.appendChild(t);
+    }
+  });
+  const span = draft.high - draft.low;
+  const ok = ESCALAS.filter(fitsDraft).length;
+  $('rangeInfo').textContent = 'Tu rango abarca ' + span + ' semitonos. ' +
+    (ok === ESCALAS.length ? 'Entran todas las escalas.' : 'Entran ' + ok + ' de ' + ESCALAS.length + ' escalas; las más largas necesitan un rango mayor.');
+}
+function fitsDraft(sc) { return draft.high - draft.low >= sc.span; }
+
+$('rangeKb').addEventListener('click', e => {
+  const k = e.target.closest('.k'); if (!k) return;
+  const m = +k.dataset.m;
+  ensureAudio();
+  const nodes = []; pianoNote(m, ctx.currentTime + 0.02, 0.9, master, 0.9, nodes);
+  if (editing === 'low') {
+    draft.low = m; if (draft.high < m) draft.high = m;
+    editing = 'high';
+  } else {
+    if (m < draft.low) { draft.high = draft.low; draft.low = m; } else draft.high = m;
+  }
+  paintRange();
+});
+$('endLow').addEventListener('click', () => { editing = 'low'; paintRange(); });
+$('endHigh').addEventListener('click', () => { editing = 'high'; paintRange(); });
+PRESETS.forEach(p => {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'preset';
+  b.innerHTML = p.nombre + ' <small>' + nn(p.low) + '–' + nn(p.high) + '</small>';
+  b.addEventListener('click', () => {
+    draft = { low: p.low, high: p.high }; editing = 'low'; paintRange();
+    const k = rangeKeys[p.low]; if (k) $('rangeWrap').scrollTo({ left: k.offsetLeft - 60, behavior: 'smooth' });
+  });
+  $('presets').appendChild(b);
+});
+$('saveRange').addEventListener('click', () => {
+  S.low = draft.low; S.high = draft.high; S.setup = true; save();
+  P.root = null; P.dir = 1;
+  openPractice();
+});
+$('cancelRange').addEventListener('click', openPractice);
+$('rangeChip').addEventListener('click', openRange);
+
+/* ---------- Vista: práctica ---------- */
+const patEl = $('pattern');
+function openPractice() {
+  $('vRange').hidden = true; $('vPractice').hidden = false; $('rangeChip').hidden = false;
+  $('rangeChipTx').textContent = nn(S.low) + ' – ' + nn(S.high);
+  if (P.root == null || !fits(ESCALAS[S.scale])) { P.root = fits(ESCALAS[S.scale]) ? bounds().rmin : null; }
+  P.shown = P.root;
+  buildMini();
+  renderList(); renderStage(); renderPlay(); renderControls();
+  setStatus('', fits(ESCALAS[S.scale]) ? 'Listo para empezar' : 'Esta escala no entra en tu rango');
+}
+function buildMini() {
+  const lo = Math.max(21, S.low - 2), hi = Math.min(108, S.high + 2);
+  const wrap = $('miniWrap');
+  let whites = 0; for (let m = lo; m <= hi; m++) if (!isBlack(m)) whites++;
+  const W = Math.max(22, Math.min(44, Math.floor((wrap.clientWidth || 340) / (whites + 1))));
+  miniKeys = buildKeyboard($('miniKb'), lo, hi, W);
+  Object.entries(miniKeys).forEach(([m, k]) => { m = +m; k.classList.toggle('in', m >= S.low && m <= S.high); k.tabIndex = -1; });
+}
+$('miniKb').addEventListener('click', e => {
+  const k = e.target.closest('.k'); if (!k || P.playing) return;
+  ensureAudio(); const nodes = []; pianoNote(+k.dataset.m, ctx.currentTime + 0.02, 0.8, master, 0.9, nodes);
+});
+
+function renderStage() {
+  const sc = ESCALAS[S.scale];
+  $('scaleGroup').textContent = sc.grupo + ' · ' + (S.scale + 1) + ' de ' + ESCALAS.length;
+  $('scaleName').textContent = sc.nombre;
+  const ok = fits(sc);
+  const b = bounds();
+  const root = P.shown != null ? P.shown : b.rmin;
+  patEl.innerHTML = '';
+  sc.notas.forEach(n => {
+    const c = document.createElement('span'); c.className = 'n' + (n.beats > 1 ? ' hold' : '');
+    c.innerHTML = ok ? nnHTML(root + n.off) : NAMES[((n.off % 12) + 12) % 12];
+    if (n.beats > 1) c.title = 'Se mantiene ' + n.beats + ' pulsos';
+    patEl.appendChild(c);
+  });
+  if (ok) {
+    $('keyNow').textContent = nn(root);
+    const total = b.rmax - b.rmin + 1;
+    $('repNow').textContent = 'Repetición ' + (root - b.rmin + 1) + ' de ' + total;
+  } else {
+    $('keyNow').textContent = '—';
+    $('repNow').textContent = 'Necesita ' + sc.span + ' semitonos; tu rango tiene ' + (S.high - S.low);
+  }
+  $('bDown').disabled = !ok || root <= b.rmin;
+  $('bUp').disabled = !ok || root >= b.rmax;
+  $('bPlay').disabled = !ok;
+  document.querySelectorAll('#list .item').forEach((it, i) => it.setAttribute('aria-current', i === S.scale));
+}
+const ICON_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4.2" height="14" rx="1.2"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2"/></svg>';
+function renderPlay() {
+  $('playIc').innerHTML = P.playing ? ICON_PAUSE : ICON_PLAY;
+  $('playTx').textContent = P.playing ? 'Pausar' : 'Reproducir';
+  $('bPlay').setAttribute('aria-label', P.playing ? 'Pausar' : 'Reproducir');
+  if (!P.playing) {
+    const st = $('status');
+    if (!st.classList.contains('done') && !st.classList.contains('warn')) setStatus('', 'En pausa');
+  }
+}
+function setStatus(kind, text) {
+  const st = $('status'); st.className = 'status' + (kind ? ' ' + kind : ''); $('statusTx').textContent = text;
+}
+function renderList() {
+  const list = $('list'); list.innerHTML = '';
+  const head = document.createElement('div');
+  head.innerHTML = '<h2>Escalas</h2><p class="hint" style="margin:4px 0 0">Tocá una para empezar desde tu nota más grave.</p>';
+  list.appendChild(head);
+  let group = null, gEl = null;
+  ESCALAS.forEach((sc, i) => {
+    if (sc.grupo !== group) {
+      group = sc.grupo; gEl = document.createElement('div'); gEl.className = 'group';
+      gEl.innerHTML = '<h3>' + group + '</h3>'; list.appendChild(gEl);
+    }
+    const ok = fits(sc);
+    const it = document.createElement('button'); it.type = 'button'; it.className = 'item' + (ok ? '' : ' off');
+    const preview = sc.notas.map(n => NAMES[((n.off % 12) + 12) % 12] + (n.beats > 1 ? ' —' : '')).join(' ');
+    it.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="tx"><span class="nm"></span>' +
+      '<span class="pt"></span>' + (ok ? '' : '<span class="no">Necesita un rango de ' + sc.span + ' semitonos</span>') + '</span>';
+    it.querySelector('.nm').textContent = sc.nombre;
+    it.querySelector('.pt').textContent = preview;
+    it.addEventListener('click', () => { selectScale(i, true); });
+    gEl.appendChild(it);
+  });
+}
+function selectScale(i, autoplay) {
+  S.scale = (i + ESCALAS.length) % ESCALAS.length; save();
+  const was = P.playing;
+  if (was) cancelAudio();
+  const ok = fits(ESCALAS[S.scale]);
+  P.dir = 1; P.root = ok ? bounds().rmin : null; P.shown = P.root;
+  renderStage();
+  if (!ok) { if (was) stopPlayback(); setStatus('warn', 'Esta escala no entra en tu rango'); return; }
+  if (was || autoplay) {
+    ensureAudio();
+    if (!P.playing) startPlayback(); else { scheduleRep(ctx.currentTime + 0.1); }
+  } else setStatus('', 'Listo para empezar');
+  if (autoplay && window.innerWidth < 880) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function shift(d) {
+  if (!fits(ESCALAS[S.scale])) return;
+  const from = P.playing && P.shown != null ? P.shown : P.root;
+  const r = clampRoot(from + d);
+  P.root = r; P.dir = d > 0 ? 1 : P.dir;
+  if (P.playing) { cancelAudio(); scheduleRep(ctx.currentTime + 0.06); }
+  else { P.shown = r; renderStage(); }
+}
+$('bPlay').addEventListener('click', () => { if (P.playing) { P.root = P.shown != null ? P.shown : P.root; stopPlayback(); } else startPlayback(); });
+$('bUp').addEventListener('click', () => { ensureAudio(); shift(1); });
+$('bDown').addEventListener('click', () => { ensureAudio(); shift(-1); });
+$('bNextScale').addEventListener('click', () => { ensureAudio(); selectScale(S.scale + 1, false); });
+$('bPrevScale').addEventListener('click', () => { ensureAudio(); selectScale(S.scale - 1, false); });
+
+function renderControls() {
+  $('bpm').value = S.bpm; $('bpmTx').innerHTML = S.bpm + '<small>pulsos/min</small>';
+  $('cue').checked = S.cue;
+  document.querySelectorAll('#topMode button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.top));
+}
+function setBpm(v) { S.bpm = Math.max(40, Math.min(200, Math.round(v / 2) * 2)); save(); renderControls(); }
+$('bpm').addEventListener('input', e => setBpm(+e.target.value));
+$('bSlower').addEventListener('click', () => setBpm(S.bpm - 4));
+$('bFaster').addEventListener('click', () => setBpm(S.bpm + 4));
+$('cue').addEventListener('change', e => { S.cue = e.target.checked; save(); });
+$('topMode').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.top = b.dataset.v; save(); renderControls(); });
+
+document.addEventListener('keydown', e => {
+  if ($('vPractice').hidden || e.target.matches('input')) return;
+  if (e.code === 'Space') { e.preventDefault(); $('bPlay').click(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); $('bUp').click(); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); $('bDown').click(); }
+  else if (e.key === 'ArrowRight') { $('bNextScale').click(); }
+  else if (e.key === 'ArrowLeft') { $('bPrevScale').click(); }
+});
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (!$('vPractice').hidden) buildMini(); }, 150); });
+
+/* ---------- Inicio ---------- */
+if (S.setup) openPractice(); else openRange();
+
+/* ---------- Actualización automática (app instalada) ---------- */
+try {
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    let had = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!had) { had = true; return; }
+      if (P.playing) P.pendingReload = true; else location.reload();
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
+  }
+} catch (e) {}
+})();
+</script>
+</body>
+</html>
