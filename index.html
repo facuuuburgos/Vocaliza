@@ -130,6 +130,9 @@ body.playing .eq i{animation:eq .9s ease-in-out infinite}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:14px 20px;font-weight:700;font-size:16px;background:var(--felt);color:var(--felt-ink);transition:transform .15s var(--ease)}
 .btn:active{transform:scale(.97)}
 .credit{font-size:12px;color:var(--muted);text-align:center;margin:0}
+.credit.by{font-size:13px;padding-top:4px;line-height:1.7}
+.credit.by b{color:var(--ink)}
+.credit a{color:var(--felt);font-weight:700;text-decoration:none}
 
 /* Tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);border-top:1px solid var(--line);
@@ -145,6 +148,9 @@ body.playing .eq i{animation:eq .9s ease-in-out infinite}
   bottom:calc(env(safe-area-inset-bottom, 0px) + var(--tabs-h) + 8px);max-width:540px;margin:0 auto;
   background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;
   transition:transform .45s var(--ease),opacity .3s,border-radius .4s}
+.scrim{position:fixed;inset:0;z-index:30;background:rgba(12,14,20,.32);opacity:0;pointer-events:none;transition:opacity .4s}
+body.pl-open .scrim{opacity:1}
+body.pl-open .player{box-shadow:0 -6px 40px rgba(12,14,20,.28),0 12px 36px rgba(12,14,20,.22)}
 .player.gone{transform:translateY(140%);opacity:0;pointer-events:none}
 .pbar{position:absolute;left:0;top:0;height:3px;background:var(--felt);width:0;transition:width .6s var(--ease)}
 .pgrab{display:flex;justify-content:center;height:0;opacity:0;transition:height .4s var(--ease),opacity .3s}
@@ -195,9 +201,6 @@ body.playing .art .note{display:none}
 .play:active{transform:scale(.93)}
 .play svg{width:32px;height:32px;position:relative;z-index:1}
 .play:disabled{opacity:.35}
-.ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--felt);opacity:0;pointer-events:none}
-.ring.go{animation:ring .7s ease-out}
-@keyframes ring{from{transform:scale(1);opacity:.6}to{transform:scale(1.45);opacity:0}}
 
 .speed{display:flex;align-items:center;gap:12px}
 .speed svg{width:22px;height:22px;flex:none;color:var(--muted)}
@@ -277,6 +280,7 @@ body.playing .art .note{display:none}
       <div class="rangeline">Tu rango: <b id="rangeTx">Do3 – Sol4</b><button class="linkbtn" id="toRange" type="button">Cambiar</button></div>
     </div>
     <div class="list" id="list"></div>
+    <p class="credit by">Vocaliza · hecha por <b>Facundo Burgos</b><br><a href="https://instagram.com/facuuuburgos" target="_blank" rel="noopener">Instagram · @facuuuburgos</a></p>
   </section>
 
   <!-- RANGO -->
@@ -302,9 +306,11 @@ body.playing .art .note{display:none}
       <button class="btn" id="doneRange" type="button">Listo, ir a las escalas</button>
     </div>
     <p class="credit">Do central = Do4 (marcado con un punto en el teclado)<br>Sonido de piano: Salamander Grand Piano, de Alexander Holm (CC BY 3.0)<br><span id="verTx"></span></p>
+    <p class="credit by">Hecha por <b>Facundo Burgos</b><br><a href="https://instagram.com/facuuuburgos" target="_blank" rel="noopener">Instagram · @facuuuburgos</a></p>
   </section>
 </div>
 
+<div class="scrim" aria-hidden="true"></div>
 <!-- REPRODUCTOR -->
 <div class="player gone" id="player" aria-label="Reproductor">
   <div class="pbar" id="pBar"></div>
@@ -324,7 +330,7 @@ body.playing .art .note{display:none}
     <div class="ctrls">
       <button class="cb" id="bPrevScale" type="button" aria-label="Escala anterior"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="2.6" height="14" rx="1.2"/><path d="M19 6.2v11.6a1 1 0 0 1-1.55.83L9.3 13.2a1.4 1.4 0 0 1 0-2.4l8.15-5.43A1 1 0 0 1 19 6.2z"/></svg></button>
       <button class="cb" id="bDown" type="button" aria-label="Medio tono abajo"><span class="semi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg><b>½</b></span></button>
-      <button class="play" id="bPlay" type="button" aria-label="Reproducir"><span class="ring" id="ring"></span><span id="playIc" style="display:grid"></span></button>
+      <button class="play" id="bPlay" type="button" aria-label="Reproducir"><span id="playIc" style="display:grid"></span></button>
       <button class="cb" id="bUp" type="button" aria-label="Medio tono arriba"><span class="semi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><b>½</b></span></button>
       <button class="cb" id="bNextScale" type="button" aria-label="Escala siguiente"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="17.4" y="5" width="2.6" height="14" rx="1.2"/><path d="M5 6.2v11.6a1 1 0 0 0 1.55.83l8.15-5.43a1.4 1.4 0 0 0 0-2.4L6.55 5.37A1 1 0 0 0 5 6.2z"/></svg></button>
     </div>
@@ -332,9 +338,6 @@ body.playing .art .note{display:none}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l3.5 17h-13z"/><path d="M12 15l4-8"/><path d="M8 15h8"/></svg>
       <input type="range" id="bpm" min="40" max="240" step="2" value="160" aria-label="Velocidad">
       <output id="bpmTx" for="bpm">160</output>
-    </div>
-    <div class="chiprow">
-      <button class="chip" id="cue" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="8" cy="18" rx="3" ry="2.2"/><ellipse cx="8" cy="12.5" rx="3" ry="2.2"/><ellipse cx="8" cy="7" rx="3" ry="2.2"/><rect x="10.4" y="3" width="1.6" height="15"/></svg>Acorde entre repeticiones</button>
     </div>
   </div></div></div>
 </div>
@@ -374,7 +377,7 @@ body.playing .art .note{display:none}
    los alumnos vean el aviso "Vocaliza se actualizó" y para comprobar
    qué versión tiene cada uno (aparece al pie de "Mi rango").
    ===================================================================== */
-const VERSION = '1.4';
+const VERSION = '1.6';
 
 /* =====================================================================
    ESCALAS — para agregar o cambiar una, editá esta lista.
@@ -442,6 +445,7 @@ try {
   }
 } catch (e) {}
 S.scale = Math.min(Math.max(0, S.scale | 0), ESCALAS.length - 1);
+S.cue = true; // el acorde entre repeticiones siempre suena
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 /* =====================================================================
@@ -454,7 +458,7 @@ const allFetched = Promise.all(Object.entries(SAMPLES).map(([name, m]) =>
   fetch('piano/' + name + '.mp3').then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }).then(ab => { raw[m] = ab; }).catch(() => {})
 ));
 
-let ctx = null, master = null, wave = null, unlocked = false;
+let ctx = null, master = null, wave = null, silentEl = null, idleT = null;
 function decode(ab) {
   return new Promise((res, rej) => { try { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); } catch (e) { rej(e); } });
 }
@@ -463,24 +467,45 @@ function makeImpulse(sec, decay) {
   for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay); }
   return b;
 }
+// El motor de sonido se prepara apenas abre la app (en silencio), así el piano ya está listo en el primer toque.
+function createAudio() {
+  if (ctx) return;
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} // suena aunque el iPhone esté en silencio
+  const AC = window.AudioContext || window.webkitAudioContext;
+  ctx = new AC();
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -12; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.2;
+  master = ctx.createGain(); master.gain.value = 0.9;
+  const verb = ctx.createConvolver(); verb.buffer = makeImpulse(2.2, 3);
+  const wet = ctx.createGain(); wet.gain.value = 0.2;
+  master.connect(comp); master.connect(verb); verb.connect(wet); wet.connect(comp); comp.connect(ctx.destination);
+  const amps = [0, 1, 0.5, 0.32, 0.2, 0.13, 0.08, 0.05, 0.03, 0.02];
+  wave = ctx.createPeriodicWave(new Float32Array(amps.length), new Float32Array(amps));
+  allFetched.then(() => Promise.all(Object.entries(raw).map(([m, ab]) => decode(ab).then(b => { buffers[m] = b; }).catch(() => {}))))
+    .then(() => { ready = Object.keys(buffers).length > 0; });
+  requestAnimationFrame(uiLoop);
+}
+// Se llama en cada toque que necesita sonido: despierta el audio.
 function ensureAudio() {
-  if (!ctx) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    ctx = new AC();
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -12; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.2;
-    master = ctx.createGain(); master.gain.value = 0.9;
-    const verb = ctx.createConvolver(); verb.buffer = makeImpulse(2.2, 3);
-    const wet = ctx.createGain(); wet.gain.value = 0.2;
-    master.connect(comp); master.connect(verb); verb.connect(wet); wet.connect(comp); comp.connect(ctx.destination);
-    const amps = [0, 1, 0.5, 0.32, 0.2, 0.13, 0.08, 0.05, 0.03, 0.02];
-    wave = ctx.createPeriodicWave(new Float32Array(amps.length), new Float32Array(amps));
-    allFetched.then(() => Promise.all(Object.entries(raw).map(([m, ab]) => decode(ab).then(b => { buffers[m] = b; }).catch(() => {}))))
-      .then(() => { ready = Object.keys(buffers).length > 0; });
-    requestAnimationFrame(uiLoop);
-  }
+  createAudio();
+  clearTimeout(idleT);
   if (ctx.state !== 'running') { try { ctx.resume(); } catch (e) {} }
-  unlockIOS();
+  if (!navigator.audioSession) {   // iPhones viejos: truco para sonar en modo silencio
+    try {
+      if (!silentEl) { silentEl = new Audio(); silentEl.src = silentWavURL(); silentEl.loop = true; silentEl.setAttribute('playsinline', ''); }
+      if (silentEl.paused) { const p = silentEl.play(); if (p) p.catch(() => {}); }
+    } catch (e) {}
+  }
+}
+// Cuando no suena nada, el audio se duerme: así no aparece nada en la Dynamic Island.
+function sleepAudioSoon(ms) {
+  clearTimeout(idleT);
+  idleT = setTimeout(() => {
+    if (P.playing || !ctx) return;
+    try { ctx.suspend(); } catch (e) {}
+    try { if (silentEl) silentEl.pause(); } catch (e) {}
+    setNowPlaying('none');
+  }, ms);
 }
 function silentWavURL() {
   const n = 4000, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
@@ -492,14 +517,17 @@ function silentWavURL() {
   for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
   return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
 }
-function unlockIOS() {
-  if (unlocked) return; unlocked = true;
-  // Para que el iPhone suene aunque esté en modo silencio
-  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
-  try { const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource(); s.buffer = b; s.connect(ctx.destination); s.start(0); } catch (e) {}
-  if (!navigator.audioSession) {
-    try { const a = new Audio(); a.src = silentWavURL(); a.loop = true; a.setAttribute('playsinline', ''); const p = a.play(); if (p) p.catch(() => {}); } catch (e) {}
-  }
+// Lo que muestra el iPhone en la Dynamic Island / pantalla bloqueada: ícono de Vocaliza y nombre de la escala
+function setNowPlaying(state) {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    if (state === 'none') { navigator.mediaSession.playbackState = 'none'; return; }
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: ESCALAS[S.scale].nombre, artist: 'Vocaliza', album: 'Vocalizaciones',
+      artwork: [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png' }, { src: 'icon-192.png', sizes: '192x192', type: 'image/png' }]
+    });
+    navigator.mediaSession.playbackState = state;
+  } catch (e) {}
 }
 
 /* Toca una nota de piano. Devuelve un objeto para poder soltarla antes. */
@@ -545,6 +573,7 @@ function previewNote(m) {
   const now = ctx.currentTime;
   if (preview) { try { preview.g.gain.cancelScheduledValues(now); preview.g.gain.setTargetAtTime(0, now, 0.04); } catch (e) {} }
   preview = playNote(m, now + 0.01, 0.9, 0.85);
+  sleepAudioSoon(2200);
 }
 
 /* =====================================================================
@@ -631,10 +660,12 @@ function startPlayback() {
   P.root = clampRoot(P.root == null ? bounds().rmin : P.root);
   P.playing = true;
   runFrom(ctx.currentTime + 0.08);
+  setNowPlaying('playing');
   wakeOn(); renderPlay();
 }
 function stopPlayback() {
   cancelAudio(); P.playing = false; wakeOff(); renderPlay();
+  if (ctx) { setNowPlaying('paused'); sleepAudioSoon(1500); }
   if (P.pendingReload) location.reload();
 }
 async function wakeOn() { try { if ('wakeLock' in navigator && !P.wake) { P.wake = await navigator.wakeLock.request('screen'); P.wake.addEventListener('release', () => { P.wake = null; }); } } catch (e) { P.wake = null; } }
@@ -658,8 +689,6 @@ function applyUI(ev) {
   } else if (ev.type === 'cue') {
     $('art').style.setProperty('--bd', ev.d.toFixed(2) + 's');
     restart($('art'), 'breath');
-  } else if (ev.type === 'beat') {
-    restart($('ring'), 'go');
   }
 }
 
@@ -724,13 +753,12 @@ surface.addEventListener('pointerdown', e => {
   $(drag === 'low' ? 'hLow' : 'hHigh').classList.add('drag');
   try { surface.setPointerCapture(e.pointerId); } catch (er) {}
   e.preventDefault();
-  ensureAudio();
   const m = nearest(x);
-  if (!h && m !== S[drag]) setEnd(drag, m, true); else { previewNote(S[drag]); paintRange(); }
+  if (!h && m !== S[drag]) setEnd(drag, m, false); else paintRange();
 });
-surface.addEventListener('pointermove', e => { if (drag) setEnd(drag, nearest(e.clientX - surface.getBoundingClientRect().left), true); });
-const endDrag = () => { if (!drag) return; document.querySelectorAll('.handle.drag').forEach(h => h.classList.remove('drag')); drag = null; paintRange(); };
-surface.addEventListener('pointerup', endDrag); surface.addEventListener('pointercancel', endDrag);
+surface.addEventListener('pointermove', e => { if (drag) setEnd(drag, nearest(e.clientX - surface.getBoundingClientRect().left), false); });
+const endDrag = play => { if (!drag) return; const w = drag; document.querySelectorAll('.handle.drag').forEach(h => h.classList.remove('drag')); drag = null; paintRange(); if (play) previewNote(S[w]); };
+surface.addEventListener('pointerup', () => endDrag(true)); surface.addEventListener('pointercancel', () => endDrag(false));
 ['hLow', 'hHigh'].forEach(id => $(id).addEventListener('keydown', e => {
   const w = $(id).dataset.h;
   if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); setEnd(w, S[w] + 1, true); }
@@ -774,7 +802,7 @@ function selectScale(i, autoplay) {
   markCurrent();
   if (!ok) { if (P.playing) stopPlayback(); renderPlayer(true); return; }
   renderPlayer(true);
-  if (P.playing) runFrom(ctx.currentTime + 0.1);
+  if (P.playing) { runFrom(ctx.currentTime + 0.1); setNowPlaying('playing'); }
   else if (autoplay) startPlayback();
 }
 
@@ -839,14 +867,12 @@ $('bPrevScale').addEventListener('click', () => { ensureAudio(); selectScale(S.s
 
 function renderControls() {
   $('bpm').value = S.bpm; $('bpmTx').textContent = S.bpm;
-  $('cue').setAttribute('aria-pressed', S.cue);
 }
 $('bpm').addEventListener('input', e => { S.bpm = Math.max(40, Math.min(240, Math.round(+e.target.value / 2) * 2)); save(); renderControls(); });
-$('cue').addEventListener('click', () => { S.cue = !S.cue; save(); renderControls(); });
 
 /* Desplegar / plegar */
 const player = $('player');
-function setOpen(open) { player.classList.toggle('open', open); $('pOpen').setAttribute('aria-label', open ? 'Ocultar controles' : 'Mostrar controles'); }
+function setOpen(open) { player.classList.toggle('open', open); document.body.classList.toggle('pl-open', open); $('pOpen').setAttribute('aria-label', open ? 'Ocultar controles' : 'Mostrar controles'); }
 let swiped = false, sy = null;
 $('pOpen').addEventListener('click', () => { if (swiped) { swiped = false; return; } ensureAudio(); setOpen(!player.classList.contains('open')); });
 $('pClose').addEventListener('click', () => setOpen(false));
@@ -901,6 +927,24 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowRight') { ensureAudio(); selectScale(S.scale + 1, false); }
   else if (e.key === 'ArrowLeft') { ensureAudio(); selectScale(S.scale - 1, false); }
 });
+
+/* ---------- Controles desde la pantalla bloqueada / Dynamic Island ---------- */
+try {
+  if ('mediaSession' in navigator) {
+    const ms = navigator.mediaSession;
+    ms.setActionHandler('play', () => { if (!P.playing) togglePlay(); });
+    ms.setActionHandler('pause', () => { if (P.playing) togglePlay(); });
+    ms.setActionHandler('nexttrack', () => { ensureAudio(); selectScale(S.scale + 1, false); });
+    ms.setActionHandler('previoustrack', () => { ensureAudio(); selectScale(S.scale - 1, false); });
+  }
+} catch (e) {}
+/* El primer toque en cualquier parte habilita el sonido (exigencia del iPhone) */
+const firstTouch = () => {
+  ['touchend', 'click', 'keydown'].forEach(ev => document.removeEventListener(ev, firstTouch, true));
+  ensureAudio(); if (!P.playing) sleepAudioSoon(2200);
+};
+['touchend', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, firstTouch, true));
+try { createAudio(); } catch (e) {}
 
 /* ---------- Inicio ---------- */
 buildRangeKb();
