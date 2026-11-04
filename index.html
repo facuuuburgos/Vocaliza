@@ -61,6 +61,9 @@ h1{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.015e
 /* Header + logo */
 .top{position:fixed;top:0;left:0;right:0;z-index:35;background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top, 0px);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
 .top .in{max-width:760px;margin:0 auto;height:var(--head-h);display:flex;align-items:center;gap:10px}
+.lang{margin-left:auto;display:flex;border:1px solid var(--line);border-radius:999px;padding:2px;gap:2px;background:var(--surface)}
+.lang button{border:0;background:transparent;border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--muted);transition:background .2s,color .2s}
+.lang button[aria-pressed="true"]{background:var(--felt);color:var(--felt-ink)}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:21px;letter-spacing:-.01em}
 .logo{width:32px;height:32px;flex:none;display:block;border-radius:9px;overflow:hidden}
 .logo .q{transform-box:view-box;transform-origin:44px 71px}
@@ -272,50 +275,50 @@ body.playing .art .note{display:none}
     </g>
   </symbol>
 </svg>
-<header class="top"><div class="in"><div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Vocaliza</div></div></header>
+<header class="top"><div class="in"><div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg>Vocaliza</div><div class="lang" role="group" data-i18n-aria="language" aria-label="Idioma"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div></div></header>
 <div class="app">
 
   <!-- ESCALAS -->
   <section class="view" id="vScales" hidden>
     <div class="vhead">
-      <h1>Escalas</h1>
-      <div class="rangeline">Tu rango: <b id="rangeTx">Do3 – Sol4</b><button class="linkbtn" id="toRange" type="button">Cambiar</button></div>
+      <h1 data-i18n="scales">Escalas</h1>
+      <div class="rangeline"><span data-i18n="yourRange">Tu rango:</span> <b id="rangeTx">Do3 – Sol4</b><button class="linkbtn" id="toRange" type="button" data-i18n="change">Cambiar</button></div>
     </div>
     <div class="list" id="list"></div>
-    <p class="credit by">Vocaliza · hecha por <b>Facundo Burgos</b><br><a href="https://instagram.com/facuuuburgos" target="_blank" rel="noopener">Instagram · @facuuuburgos</a></p>
+    <p class="credit by"><span data-i18n-html="creditList">Vocaliza · hecha por <b>Facundo Burgos</b></span><br><a href="https://instagram.com/facuuuburgos" target="_blank" rel="noopener">Instagram · @facuuuburgos</a></p>
   </section>
 
   <!-- RANGO -->
   <section class="view" id="vRange" hidden>
     <div class="vhead">
-      <span class="eyebrow">Mi rango</span>
-      <h1>¿Cuál es tu rango vocal?</h1>
-      <p class="hint">Arrastrá los dos círculos hasta la nota más grave y la más aguda que podés cantar cómodo. Cada nota suena mientras la elegís.</p>
+      <span class="eyebrow" data-i18n="myRange">Mi rango</span>
+      <h1 data-i18n="rangeQ">¿Cuál es tu rango vocal?</h1>
+      <p class="hint" data-i18n="rangeHint">Arrastrá los dos círculos hasta la nota más grave y la más aguda que podés cantar cómodo. La nota suena al soltar el círculo.</p>
     </div>
     <div class="card" style="display:flex;flex-direction:column;gap:18px">
       <div class="vals">
-        <div class="val" id="valLow"><span>Nota más grave</span><div class="row"><b id="lowTx">Do3</b><div class="nudge"><button type="button" id="lowDn" aria-label="Bajar la nota grave">−</button><button type="button" id="lowUp" aria-label="Subir la nota grave">+</button></div></div></div>
-        <div class="val" id="valHigh"><span>Nota más aguda</span><div class="row"><b id="highTx">Sol4</b><div class="nudge"><button type="button" id="highDn" aria-label="Bajar la nota aguda">−</button><button type="button" id="highUp" aria-label="Subir la nota aguda">+</button></div></div></div>
+        <div class="val" id="valLow"><span data-i18n="lowest">Nota más grave</span><div class="row"><b id="lowTx">Do3</b><div class="nudge"><button type="button" id="lowDn" data-i18n-aria="lowDn" aria-label="Bajar la nota grave">−</button><button type="button" id="lowUp" data-i18n-aria="lowUp" aria-label="Subir la nota grave">+</button></div></div></div>
+        <div class="val" id="valHigh"><span data-i18n="highest">Nota más aguda</span><div class="row"><b id="highTx">Sol4</b><div class="nudge"><button type="button" id="highDn" data-i18n-aria="highDn" aria-label="Bajar la nota aguda">−</button><button type="button" id="highUp" data-i18n-aria="highUp" aria-label="Subir la nota aguda">+</button></div></div></div>
       </div>
       <div class="surface" id="surface">
         <div class="kb" id="kb"></div>
         <div class="octs" id="octs"></div>
         <div class="track"><div class="fill" id="fill"></div></div>
-        <button class="handle" id="hLow" type="button" data-h="low" aria-label="Nota más grave"><span class="bub" id="bLow">Do3</span></button>
-        <button class="handle" id="hHigh" type="button" data-h="high" aria-label="Nota más aguda"><span class="bub" id="bHigh">Sol4</span></button>
+        <button class="handle" id="hLow" type="button" data-h="low" data-i18n-aria="lowest" aria-label="Nota más grave"><span class="bub" id="bLow">Do3</span></button>
+        <button class="handle" id="hHigh" type="button" data-h="high" data-i18n-aria="highest" aria-label="Nota más aguda"><span class="bub" id="bHigh">Sol4</span></button>
       </div>
       <p class="hint" id="rangeInfo"></p>
       <button class="btn" id="doneRange" type="button">Listo, ir a las escalas</button>
     </div>
-    <p class="credit">Do central = Do4 (marcado con un punto en el teclado)<br>Sonido de piano: Salamander Grand Piano, de Alexander Holm (CC BY 3.0)<br><span id="verTx"></span></p>
-    <p class="credit by">Hecha por <b>Facundo Burgos</b><br><a href="https://instagram.com/facuuuburgos" target="_blank" rel="noopener">Instagram · @facuuuburgos</a></p>
+    <p class="credit"><span data-i18n-html="creditPiano">Do central = Do4 (marcado con un punto en el teclado)<br>Sonido de piano: Salamander Grand Piano, de Alexander Holm (CC BY 3.0)</span><br><span id="verTx"></span></p>
+    <p class="credit by"><span data-i18n-html="creditRange">Hecha por <b>Facundo Burgos</b></span><br><a href="https://instagram.com/facuuuburgos" target="_blank" rel="noopener">Instagram · @facuuuburgos</a></p>
   </section>
 </div>
 
 <div class="fade" aria-hidden="true"></div>
 <div class="scrim" id="scrim" aria-hidden="true"></div>
 <!-- REPRODUCTOR -->
-<div class="player gone" id="player" aria-label="Reproductor">
+<div class="player gone" id="player" data-i18n-aria="player" aria-label="Reproductor">
   <div class="pbar" id="pBar"></div>
   <div class="pgrab" aria-hidden="true"><span></span></div>
   <div class="phead" id="phead">
@@ -327,29 +330,29 @@ body.playing .art .note{display:none}
       <span class="ptxt"><span class="pname" id="pName">Rossini</span><span class="psub" id="pSub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg><span id="pSubTx">Do3 – Sol4</span></span></span>
     </button>
     <button class="ppmini" id="pPlayMini" type="button" aria-label="Reproducir"></button>
-    <button class="pclose" id="pClose" type="button" aria-label="Ocultar controles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button class="pclose" id="pClose" type="button" data-i18n-aria="hideCtrl" aria-label="Ocultar controles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
   </div>
   <div class="pmore"><div class="pmore-in"><div class="pbody">
     <div class="ctrls">
-      <button class="cb" id="bPrevScale" type="button" aria-label="Escala anterior"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="2.6" height="14" rx="1.2"/><path d="M19 6.2v11.6a1 1 0 0 1-1.55.83L9.3 13.2a1.4 1.4 0 0 1 0-2.4l8.15-5.43A1 1 0 0 1 19 6.2z"/></svg></button>
-      <button class="cb" id="bDown" type="button" aria-label="Medio tono abajo"><span class="semi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg><b>½</b></span></button>
+      <button class="cb" id="bPrevScale" type="button" data-i18n-aria="prevScale" aria-label="Escala anterior"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="2.6" height="14" rx="1.2"/><path d="M19 6.2v11.6a1 1 0 0 1-1.55.83L9.3 13.2a1.4 1.4 0 0 1 0-2.4l8.15-5.43A1 1 0 0 1 19 6.2z"/></svg></button>
+      <button class="cb" id="bDown" type="button" data-i18n-aria="semiDown" aria-label="Medio tono abajo"><span class="semi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg><b>½</b></span></button>
       <button class="play" id="bPlay" type="button" aria-label="Reproducir"><span id="playIc" style="display:grid"></span></button>
-      <button class="cb" id="bUp" type="button" aria-label="Medio tono arriba"><span class="semi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><b>½</b></span></button>
-      <button class="cb" id="bNextScale" type="button" aria-label="Escala siguiente"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="17.4" y="5" width="2.6" height="14" rx="1.2"/><path d="M5 6.2v11.6a1 1 0 0 0 1.55.83l8.15-5.43a1.4 1.4 0 0 0 0-2.4L6.55 5.37A1 1 0 0 0 5 6.2z"/></svg></button>
+      <button class="cb" id="bUp" type="button" data-i18n-aria="semiUp" aria-label="Medio tono arriba"><span class="semi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><b>½</b></span></button>
+      <button class="cb" id="bNextScale" type="button" data-i18n-aria="nextScale" aria-label="Escala siguiente"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="17.4" y="5" width="2.6" height="14" rx="1.2"/><path d="M5 6.2v11.6a1 1 0 0 0 1.55.83l8.15-5.43a1.4 1.4 0 0 0 0-2.4L6.55 5.37A1 1 0 0 0 5 6.2z"/></svg></button>
     </div>
     <div class="speed">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l3.5 17h-13z"/><path d="M12 15l4-8"/><path d="M8 15h8"/></svg>
-      <input type="range" id="bpm" min="40" max="240" step="2" value="160" aria-label="Velocidad">
+      <input type="range" id="bpm" min="40" max="240" step="2" value="160" data-i18n-aria="tempo" aria-label="Velocidad">
       <output id="bpmTx" for="bpm">160</output>
     </div>
   </div></div></div>
 </div>
 
 <!-- PESTAÑAS -->
-<nav class="tabs" aria-label="Secciones">
+<nav class="tabs" data-i18n-aria="sections" aria-label="Secciones">
   <div class="in" role="tablist">
-    <button class="tab" id="tabScales" type="button" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>Escalas</button>
-    <button class="tab" id="tabRange" type="button" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v9M12 4v9M16 4v9M6.5 13h3M10.5 13h3M14.5 13h3"/></svg>Mi rango</button>
+    <button class="tab" id="tabScales" type="button" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span data-i18n="scales">Escalas</span></button>
+    <button class="tab" id="tabRange" type="button" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v9M12 4v9M16 4v9M6.5 13h3M10.5 13h3M14.5 13h3"/></svg><span data-i18n="myRange">Mi rango</span></button>
   </div>
 </nav>
 <div class="toast" id="toast" role="status"></div>
@@ -361,7 +364,7 @@ body.playing .art .note{display:none}
     <div style="display:flex;flex-direction:column;gap:10px">
       <h1 id="insTitle">Instalá Vocaliza</h1>
       <p class="hint" id="insLead"></p>
-      <div class="ins-why"><span>Pantalla completa</span><span>Funciona sin internet</span><span>Se actualiza sola</span></div>
+      <div class="ins-why"><span data-i18n="why1">Pantalla completa</span><span data-i18n="why2">Funciona sin internet</span><span data-i18n="why3">Se actualiza sola</span></div>
     </div>
     <ol class="steps" id="insSteps"></ol>
     <div class="ins-extra" id="insExtra"></div>
@@ -380,29 +383,89 @@ body.playing .art .note{display:none}
    los alumnos vean el aviso "Vocaliza se actualizó" y para comprobar
    qué versión tiene cada uno (aparece al pie de "Mi rango").
    ===================================================================== */
-const VERSION = '2.1';
+const VERSION = '2.2';
 
 /* =====================================================================
    ESCALAS — para agregar o cambiar una, editá esta lista.
+   grupo / nombre: cómo se ve en español · group / name: cómo se ve en inglés
    Escribí las notas separadas por espacios:
      do re mi fa sol la si      → primera octava
      do2 re2 mi2 ...            → una octava más arriba
      _                          → la nota anterior se mantiene un pulso más
    ===================================================================== */
 const ESCALAS = [
-  { grupo: 'Rossini',       nombre: 'Rossini',                                patron: 'do mi sol do2 mi2 sol2 fa2 re2 si sol fa re do' },
-  { grupo: 'Rossini',       nombre: 'Rossini con repetición',                 patron: 'do mi sol do2 mi2 sol2 sol2 sol2 fa2 re2 si sol fa re do' },
-  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor',                          patron: 'do mi sol do2 sol mi do' },
-  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor con repetición',           patron: 'do mi sol do2 do2 do2 do2 sol mi do' },
-  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor sostenido',                patron: 'do mi sol do2 _ _ _ sol mi do' },
-  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor descendente',              patron: 'do2 sol mi do' },
-  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor descendente y ascendente', patron: 'do2 sol mi do mi sol do2 sol mi do' },
-  { grupo: '5 tonos',       nombre: '5 tonos',                                patron: 'do re mi fa sol fa mi re do' },
-  { grupo: '5 tonos',       nombre: '5 tonos descendente',                    patron: 'sol fa mi re do' },
-  { grupo: '5 tonos',       nombre: '5 tonos descendente y ascendente',       patron: 'sol fa mi re do re mi fa sol fa mi re do' },
-  { grupo: '5 tonos',       nombre: '5 tonos con repetición',                 patron: 'do re mi fa sol sol sol sol sol fa mi re do' },
-  { grupo: '5 tonos',       nombre: '5 tonos sostenido',                      patron: 'do re mi fa sol _ _ _ _ fa mi re do' },
+  { grupo: 'Rossini',       nombre: 'Rossini',                                group: 'Rossini',        name: 'Rossini',                                    patron: 'do mi sol do2 mi2 sol2 fa2 re2 si sol fa re do' },
+  { grupo: 'Rossini',       nombre: 'Rossini con repetición',                 group: 'Rossini',        name: 'Rossini with repeats',                       patron: 'do mi sol do2 mi2 sol2 sol2 sol2 fa2 re2 si sol fa re do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor',                          group: 'Major arpeggio', name: 'Major arpeggio',                             patron: 'do mi sol do2 sol mi do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor con repetición',           group: 'Major arpeggio', name: 'Major arpeggio with repeats',                patron: 'do mi sol do2 do2 do2 do2 sol mi do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor sostenido',                group: 'Major arpeggio', name: 'Sustained major arpeggio',                   patron: 'do mi sol do2 _ _ _ sol mi do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor descendente',              group: 'Major arpeggio', name: 'Descending major arpeggio',                  patron: 'do2 sol mi do' },
+  { grupo: 'Arpegio mayor', nombre: 'Arpegio mayor descendente y ascendente', group: 'Major arpeggio', name: 'Descending and ascending major arpeggio',    patron: 'do2 sol mi do mi sol do2 sol mi do' },
+  { grupo: '5 tonos',       nombre: '5 tonos',                                group: '5-note scale',   name: '5-note scale',                               patron: 'do re mi fa sol fa mi re do' },
+  { grupo: '5 tonos',       nombre: '5 tonos descendente',                    group: '5-note scale',   name: 'Descending 5-note scale',                    patron: 'sol fa mi re do' },
+  { grupo: '5 tonos',       nombre: '5 tonos descendente y ascendente',       group: '5-note scale',   name: 'Descending and ascending 5-note scale',      patron: 'sol fa mi re do re mi fa sol fa mi re do' },
+  { grupo: '5 tonos',       nombre: '5 tonos con repetición',                 group: '5-note scale',   name: '5-note scale with repeats',                  patron: 'do re mi fa sol sol sol sol sol fa mi re do' },
+  { grupo: '5 tonos',       nombre: '5 tonos sostenido',                      group: '5-note scale',   name: 'Sustained 5-note scale',                     patron: 'do re mi fa sol _ _ _ _ fa mi re do' },
 ];
+
+/* =====================================================================
+   IDIOMA — se elige solo según el idioma del teléfono (español si está
+   en español, inglés para todo lo demás). Cada persona puede cambiarlo
+   con el botón ES / EN de arriba, y la app lo recuerda.
+   ===================================================================== */
+const TEXTOS = {
+  es: {
+    language: 'Idioma', scales: 'Escalas', yourRange: 'Tu rango:', change: 'Cambiar', myRange: 'Mi rango',
+    rangeQ: '¿Cuál es tu rango vocal?',
+    rangeHint: 'Arrastrá los dos círculos hasta la nota más grave y la más aguda que podés cantar cómodo. La nota suena al soltar el círculo.',
+    lowest: 'Nota más grave', highest: 'Nota más aguda',
+    lowDn: 'Bajar la nota grave', lowUp: 'Subir la nota grave', highDn: 'Bajar la nota aguda', highUp: 'Subir la nota aguda',
+    doneFirst: 'Listo, ir a las escalas', done: 'Ir a las escalas',
+    rangeAll: 'Entran todas las escalas en tu rango.',
+    rangeSome: (ok, n) => 'Entran ' + ok + ' de ' + n + ' escalas. Las más largas necesitan un rango mayor.',
+    creditList: 'Vocaliza · hecha por <b>Facundo Burgos</b>', creditRange: 'Hecha por <b>Facundo Burgos</b>',
+    creditPiano: 'Do central = Do4 (marcado con un punto en el teclado)<br>Sonido de piano: Salamander Grand Piano, de Alexander Holm (CC BY 3.0)',
+    version: 'Versión ',
+    player: 'Reproductor', showCtrl: 'Mostrar controles', hideCtrl: 'Ocultar controles', play: 'Reproducir', pause: 'Pausar',
+    prevScale: 'Escala anterior', nextScale: 'Escala siguiente', semiDown: 'Medio tono abajo', semiUp: 'Medio tono arriba', tempo: 'Velocidad',
+    sections: 'Secciones', outOfRange: 'No entra en tu rango', finished: 'Terminado',
+    updated: 'Vocaliza se actualizó', album: 'Vocalizaciones',
+    why1: 'Pantalla completa', why2: 'Funciona sin internet', why3: 'Se actualiza sola'
+  },
+  en: {
+    language: 'Language', scales: 'Scales', yourRange: 'Your range:', change: 'Change', myRange: 'My range',
+    rangeQ: "What's your vocal range?",
+    rangeHint: 'Drag the two circles to the lowest and highest notes you can sing comfortably. The note plays when you let go of the circle.',
+    lowest: 'Lowest note', highest: 'Highest note',
+    lowDn: 'Lower the lowest note', lowUp: 'Raise the lowest note', highDn: 'Lower the highest note', highUp: 'Raise the highest note',
+    doneFirst: 'Done, go to the scales', done: 'Go to the scales',
+    rangeAll: 'All the scales fit in your range.',
+    rangeSome: (ok, n) => ok + ' of ' + n + ' scales fit. The longer ones need a wider range.',
+    creditList: 'Vocaliza · made by <b>Facundo Burgos</b>', creditRange: 'Made by <b>Facundo Burgos</b>',
+    creditPiano: 'Middle C = C4 (marked with a dot on the keyboard)<br>Piano sound: Salamander Grand Piano by Alexander Holm (CC BY 3.0)',
+    version: 'Version ',
+    player: 'Player', showCtrl: 'Show controls', hideCtrl: 'Hide controls', play: 'Play', pause: 'Pause',
+    prevScale: 'Previous scale', nextScale: 'Next scale', semiDown: 'Half step down', semiUp: 'Half step up', tempo: 'Tempo',
+    sections: 'Sections', outOfRange: 'Out of your range', finished: 'Done',
+    updated: 'Vocaliza was updated', album: 'Vocal warm-ups',
+    why1: 'Full screen', why2: 'Works offline', why3: 'Updates itself'
+  }
+};
+let LANG = 'es';
+try {
+  const saved = localStorage.getItem('vocaliza-lang');
+  if (saved === 'es' || saved === 'en') LANG = saved;
+  else {
+    const langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'es'];
+    LANG = /^es\b/i.test(langs[0] || '') ? 'es' : 'en';
+  }
+} catch (e) {
+  LANG = /^es\b/i.test(navigator.language || 'es') ? 'es' : 'en';
+}
+const T = (k, ...a) => { const v = (TEXTOS[LANG] || TEXTOS.es)[k]; return typeof v === 'function' ? v(...a) : (v == null ? k : v); };
+const L = (es, en) => LANG === 'en' ? en : es;
+const scName = sc => L(sc.nombre, sc.name || sc.nombre);
+const scGroup = sc => L(sc.grupo, sc.group || sc.grupo);
 
 /* ---------- Que se sienta como app: sin zoom ---------- */
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
@@ -410,11 +473,14 @@ document.addEventListener('touchmove', e => { if (e.touches && e.touches.length 
 document.addEventListener('dblclick', e => e.preventDefault());
 
 /* ---------- Notas ---------- */
-const NAMES = ['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'];
+const NOTE_NAMES = {
+  es: ['Do','Do#','Re','Re#','Mi','Fa','Fa#','Sol','Sol#','La','La#','Si'],
+  en: ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
+};
 const STEP = { do:0, re:2, mi:4, fa:5, sol:7, la:9, si:11 };
 const isBlack = m => [1,3,6,8,10].includes(((m % 12) + 12) % 12);
-const nn = m => NAMES[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1);
-const pc = off => NAMES[((off % 12) + 12) % 12];
+const nn = m => NOTE_NAMES[LANG][((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1);
+const pc = off => NOTE_NAMES[LANG][((off % 12) + 12) % 12];
 const $ = id => document.getElementById(id);
 
 function parsePattern(str) {
@@ -461,6 +527,7 @@ const allFetched = Promise.all(Object.entries(SAMPLES).map(([name, m]) =>
   fetch('piano/' + name + '.mp3').then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }).then(ab => { raw[m] = ab; }).catch(() => {})
 ));
 
+let rerenderInstall = () => {};
 let ctx = null, master = null, wave = null, silentEl = null, idleT = null, audioUnlocked = false;
 function decode(ab) {
   return new Promise((res, rej) => { try { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); } catch (e) { rej(e); } });
@@ -530,7 +597,7 @@ function setNowPlaying(state) {
   try {
     if (state === 'none') { navigator.mediaSession.playbackState = 'none'; return; }
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: ESCALAS[S.scale].nombre, artist: 'Vocaliza', album: 'Vocalizaciones',
+      title: scName(ESCALAS[S.scale]), artist: 'Vocaliza', album: T('album'),
       artwork: [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png' }, { src: 'icon-192.png', sizes: '192x192', type: 'image/png' }]
     });
     navigator.mediaSession.playbackState = state;
@@ -769,8 +836,7 @@ function paintRange() {
   $('lowDn').disabled = S.low <= KB_LO; $('lowUp').disabled = S.low >= S.high - 1;
   $('highDn').disabled = S.high <= S.low + 1; $('highUp').disabled = S.high >= KB_HI;
   const ok = ESCALAS.filter(fits).length;
-  $('rangeInfo').textContent = ok === ESCALAS.length ? 'Entran todas las escalas en tu rango.' :
-    'Entran ' + ok + ' de ' + ESCALAS.length + ' escalas. Las más largas necesitan un rango mayor.';
+  $('rangeInfo').textContent = ok === ESCALAS.length ? T('rangeAll') : T('rangeSome', ok, ESCALAS.length);
   $('surface').classList.add('ready');
 }
 function setEnd(which, m, sound) {
@@ -819,16 +885,16 @@ function renderList() {
   const list = $('list'); list.innerHTML = '';
   let group = null, gEl = null;
   ESCALAS.forEach((sc, i) => {
-    if (sc.grupo !== group) {
-      group = sc.grupo; gEl = document.createElement('div'); gEl.className = 'group';
+    if (scGroup(sc) !== group) {
+      group = scGroup(sc); gEl = document.createElement('div'); gEl.className = 'group';
       const h = document.createElement('h3'); h.textContent = group; gEl.appendChild(h); list.appendChild(gEl);
     }
     const ok = fits(sc);
     const it = document.createElement('button'); it.type = 'button'; it.className = 'item' + (ok ? '' : ' off');
     it.style.setProperty('--i', i);
     it.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="tx"><span class="nm"></span><span class="pt"></span>' +
-      (ok ? '' : '<span class="no">No entra en tu rango</span>') + '</span><span class="eq"><i></i><i></i><i></i><i></i></span>';
-    it.querySelector('.nm').textContent = sc.nombre;
+      (ok ? '' : '<span class="no">' + T('outOfRange') + '</span>') + '</span><span class="eq"><i></i><i></i><i></i><i></i></span>';
+    it.querySelector('.nm').textContent = scName(sc);
     it.querySelector('.pt').textContent = sc.notas.map(n => pc(n.off) + (n.beats > 1 ? ' —' : '')).join(' ');
     it.addEventListener('click', () => { selectScale(i, true); setOpen(true); });
     gEl.appendChild(it);
@@ -855,13 +921,13 @@ const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="
 let lastSub = '';
 function renderPlayer(anim) {
   const sc = cur(), ok = fits(sc), b = bounds();
-  $('pName').textContent = sc.nombre;
+  $('pName').textContent = scName(sc);
   const sub = $('pSub');
   let text, cls = '';
-  if (!ok) { text = 'No entra en tu rango'; cls = 'plain warn'; }
+  if (!ok) { text = T('outOfRange'); cls = 'plain warn'; }
   else {
     const root = P.shown != null ? P.shown : b.rmin;
-    if (P.note === 'done') { text = 'Terminado'; cls = 'plain'; }
+    if (P.note === 'done') { text = T('finished'); cls = 'plain'; }
     else { text = nn(root + sc.min) + ' – ' + nn(root + sc.max); cls = P.shownDir < 0 ? 'down' : ''; }
     const n = b.rmax - b.rmin + 1, total = Math.max(1, 2 * n - 1);
     const idx = P.shownDir > 0 ? root - b.rmin + 1 : n + (b.rmax - root);
@@ -877,7 +943,7 @@ function renderPlayer(anim) {
 function renderPlay() {
   $('playIc').innerHTML = P.playing ? ICON_PAUSE : ICON_PLAY;
   $('pPlayMini').innerHTML = P.playing ? ICON_PAUSE : ICON_PLAY;
-  const lbl = P.playing ? 'Pausar' : 'Reproducir';
+  const lbl = P.playing ? T('pause') : T('play');
   $('bPlay').setAttribute('aria-label', lbl); $('pPlayMini').setAttribute('aria-label', lbl);
   document.body.classList.toggle('playing', P.playing);
   renderPlayer(false);
@@ -913,7 +979,7 @@ $('bpm').addEventListener('input', e => { S.bpm = Math.max(40, Math.min(240, Mat
 
 /* Desplegar / plegar */
 const player = $('player');
-function setOpen(open) { player.classList.toggle('open', open); document.body.classList.toggle('pl-open', open); $('pOpen').setAttribute('aria-label', open ? 'Ocultar controles' : 'Mostrar controles'); }
+function setOpen(open) { player.classList.toggle('open', open); document.body.classList.toggle('pl-open', open); $('pOpen').setAttribute('aria-label', open ? T('hideCtrl') : T('showCtrl')); }
 let swiped = false, sy = null;
 $('pOpen').addEventListener('click', () => { if (swiped) { swiped = false; return; } ensureAudio(); setOpen(!player.classList.contains('open')); });
 $('pClose').addEventListener('click', () => setOpen(false));
@@ -945,7 +1011,7 @@ function setTab(t) {
   restart(v, 'enter');
   if (isR) {
     setOpen(false);
-    $('doneRange').textContent = S.setup ? 'Ir a las escalas' : 'Listo, ir a las escalas';
+    $('doneRange').textContent = S.setup ? T('done') : T('doneFirst');
     $('surface').classList.remove('ready');
     requestAnimationFrame(() => { measure(); paintRange(); });
   } else {
@@ -997,7 +1063,7 @@ try { createAudio(); } catch (e) {}
 buildRangeKb();
 renderControls(); renderPlay();
 setTab(S.setup ? 'scales' : 'range');
-$('verTx').textContent = 'Versión ' + VERSION;
+$('verTx').textContent = T('version') + VERSION;
 
 
 /* =====================================================================
@@ -1033,12 +1099,13 @@ $('verTx').textContent = 'Versión ' + VERSION;
 
   function guide() {
     if (inApp) return {
-      title: 'Abrí Vocaliza en tu navegador',
-      lead: 'Estás viendo la app dentro de otra aplicación, y desde acá no se puede instalar.',
+      title: L('Abrí Vocaliza en tu navegador', 'Open Vocaliza in your browser'),
+      lead: L('Estás viendo la app dentro de otra aplicación, y desde acá no se puede instalar.', "You're viewing the app inside another app, and it can't be installed from here."),
       steps: [
-        'Tocá ' + I.dots + ' (arriba o abajo a la derecha).',
-        'Elegí ' + B(isIOS ? 'Abrir en Safari' : 'Abrir en el navegador') + ' o ' + B('Abrir en navegador externo') + '.',
-        'Ahí vas a ver los pasos para agregarla a tu pantalla de inicio.'
+        L('Tocá ' + I.dots + ' (arriba o abajo a la derecha).', 'Tap ' + I.dots + ' (top or bottom right).'),
+        L('Elegí ' + B(isIOS ? 'Abrir en Safari' : 'Abrir en el navegador') + ' o ' + B('Abrir en navegador externo') + '.',
+          'Choose ' + B(isIOS ? 'Open in Safari' : 'Open in browser') + ' or ' + B('Open in external browser') + '.'),
+        L('Ahí vas a ver los pasos para agregarla a tu pantalla de inicio.', "There you'll see the steps to add it to your Home Screen.")
       ], copy: true
     };
     if (isIOS) {
@@ -1046,25 +1113,30 @@ $('verTx').textContent = 'Versión ' + VERSION;
       if (iosBrowser === 'Safari') {
         const newSafari = safariVer >= 26 && !isIPad;
         return {
-          title: 'Instalá Vocaliza en tu ' + device,
-          lead: 'Agregala a tu pantalla de inicio y se abre como cualquier otra app. Son tres toques.',
+          title: L('Instalá Vocaliza en tu ', 'Install Vocaliza on your ') + device,
+          lead: L('Agregala a tu pantalla de inicio y se abre como cualquier otra app. Son tres toques.', 'Add it to your Home Screen and it opens like any other app. It takes three taps.'),
           steps: [
             newSafari
-              ? 'Tocá ' + I.dots + ' abajo a la derecha y después ' + I.share + ' ' + B('Compartir') + '.'
-              : 'Tocá el botón ' + I.share + ' ' + B('Compartir') + (isIPad ? ' arriba a la derecha.' : ' en la barra de abajo. Si no ves la barra, tocá una vez cerca del borde de abajo de la pantalla.'),
-            'Bajá un poco y tocá ' + I.add + ' ' + B('Agregar a inicio') + '.',
-            'Dejá activado ' + B('Abrir como app web') + ' si aparece, y tocá ' + B('Agregar') + '. Listo: abrí Vocaliza desde el ícono nuevo.'
+              ? L('Tocá ' + I.dots + ' abajo a la derecha y después ' + I.share + ' ' + B('Compartir') + '.',
+                  'Tap ' + I.dots + ' at the bottom right, then ' + I.share + ' ' + B('Share') + '.')
+              : L('Tocá el botón ' + I.share + ' ' + B('Compartir') + (isIPad ? ' arriba a la derecha.' : ' en la barra de abajo. Si no ves la barra, tocá una vez cerca del borde de abajo de la pantalla.'),
+                  'Tap the ' + I.share + ' ' + B('Share') + ' button' + (isIPad ? ' at the top right.' : " in the bottom bar. If you don't see the bar, tap once near the bottom edge of the screen.")),
+            L('Bajá un poco y tocá ' + I.add + ' ' + B('Agregar a inicio') + '.', 'Scroll down a little and tap ' + I.add + ' ' + B('Add to Home Screen') + '.'),
+            L('Dejá activado ' + B('Abrir como app web') + ' si aparece, y tocá ' + B('Agregar') + '. Listo: abrí Vocaliza desde el ícono nuevo.',
+              'Leave ' + B('Open as Web App') + ' turned on if you see it, and tap ' + B('Add') + '. Done: open Vocaliza from the new icon.')
           ],
           pointer: isIPad ? { dir: 'up', right: 70 } : (newSafari ? { dir: 'down', right: 34 } : { dir: 'down', center: true })
         };
       }
       return {
-        title: 'Instalá Vocaliza en tu ' + device,
-        lead: 'Agregala a tu pantalla de inicio y se abre como cualquier otra app.',
+        title: L('Instalá Vocaliza en tu ', 'Install Vocaliza on your ') + device,
+        lead: L('Agregala a tu pantalla de inicio y se abre como cualquier otra app.', 'Add it to your Home Screen and it opens like any other app.'),
         steps: [
-          'Tocá ' + I.share + ' ' + B('Compartir') + (iosBrowser === 'Chrome' ? ' en la barra de direcciones, arriba a la derecha.' : ' (en el menú del navegador).'),
-          'Tocá ' + I.add + ' ' + B('Agregar a inicio') + '.',
-          'Tocá ' + B('Agregar') + '. Si no te aparece esa opción, copiá el link y abrilo en ' + B('Safari') + '.'
+          L('Tocá ' + I.share + ' ' + B('Compartir') + (iosBrowser === 'Chrome' ? ' en la barra de direcciones, arriba a la derecha.' : ' (en el menú del navegador).'),
+            'Tap ' + I.share + ' ' + B('Share') + (iosBrowser === 'Chrome' ? ' in the address bar, at the top right.' : ' (in the browser menu).')),
+          L('Tocá ' + I.add + ' ' + B('Agregar a inicio') + '.', 'Tap ' + I.add + ' ' + B('Add to Home Screen') + '.'),
+          L('Tocá ' + B('Agregar') + '. Si no te aparece esa opción, copiá el link y abrilo en ' + B('Safari') + '.',
+            'Tap ' + B('Add') + ". If you don't see that option, copy the link and open it in " + B('Safari') + '.')
         ],
         copy: true,
         pointer: iosBrowser === 'Chrome' ? { dir: 'up', right: 24 } : null
@@ -1072,33 +1144,35 @@ $('verTx').textContent = 'Versión ' + VERSION;
     }
     if (isAndroid) {
       if (samsung) return {
-        title: 'Instalá Vocaliza en tu celular',
-        lead: 'Agregala a tu pantalla de inicio y se abre como cualquier otra app.',
+        title: L('Instalá Vocaliza en tu celular', 'Install Vocaliza on your phone'),
+        lead: L('Agregala a tu pantalla de inicio y se abre como cualquier otra app.', 'Add it to your Home screen and it opens like any other app.'),
         steps: [
-          'Tocá ' + I.burger + ' abajo a la derecha.',
-          'Tocá ' + B('Agregar página a') + ' y después ' + B('Pantalla de inicio') + '.',
-          'Tocá ' + B('Agregar') + '. Listo: abrí Vocaliza desde el ícono nuevo.'
+          L('Tocá ' + I.burger + ' abajo a la derecha.', 'Tap ' + I.burger + ' at the bottom right.'),
+          L('Tocá ' + B('Agregar página a') + ' y después ' + B('Pantalla de inicio') + '.', 'Tap ' + B('Add page to') + ', then ' + B('Home screen') + '.'),
+          L('Tocá ' + B('Agregar') + '. Listo: abrí Vocaliza desde el ícono nuevo.', 'Tap ' + B('Add') + '. Done: open Vocaliza from the new icon.')
         ],
         pointer: { dir: 'down', right: 28 }
       };
       return {
-        title: 'Instalá Vocaliza en tu celular',
-        lead: 'Agregala a tu pantalla de inicio y se abre como cualquier otra app.',
+        title: L('Instalá Vocaliza en tu celular', 'Install Vocaliza on your phone'),
+        lead: L('Agregala a tu pantalla de inicio y se abre como cualquier otra app.', 'Add it to your Home screen and it opens like any other app.'),
         steps: [
-          'Tocá ' + I.kebab + ' arriba a la derecha.',
-          'Tocá ' + I.install + ' ' + B('Instalar aplicación') + ' o ' + B('Agregar a la pantalla principal') + '.',
-          'Confirmá con ' + B('Instalar') + '. Listo: abrí Vocaliza desde el ícono nuevo.'
+          L('Tocá ' + I.kebab + ' arriba a la derecha.', 'Tap ' + I.kebab + ' at the top right.'),
+          L('Tocá ' + I.install + ' ' + B('Instalar aplicación') + ' o ' + B('Agregar a la pantalla principal') + '.',
+            'Tap ' + I.install + ' ' + B('Install app') + ' or ' + B('Add to Home screen') + '.'),
+          L('Confirmá con ' + B('Instalar') + '. Listo: abrí Vocaliza desde el ícono nuevo.', 'Confirm with ' + B('Install') + '. Done: open Vocaliza from the new icon.')
         ],
         pointer: { dir: 'up', right: 22 }, installBtn: true
       };
     }
     return {
-      title: 'Vocaliza es para tu celular',
-      lead: 'Funciona mejor instalada en un iPhone o en un Android. Abrí este link en tu teléfono y seguí los pasos que te va a mostrar.',
+      title: L('Vocaliza es para tu celular', 'Vocaliza is made for your phone'),
+      lead: L('Funciona mejor instalada en un iPhone o en un Android. Abrí este link en tu teléfono y seguí los pasos que te va a mostrar.',
+              'It works best installed on an iPhone or Android phone. Open this link on your phone and follow the steps it shows you.'),
       steps: [
-        'Copiá el link de abajo y mandátelo al celular (por WhatsApp o por mail).',
-        'Abrilo en ' + B('Safari') + ' si tenés iPhone, o en ' + B('Chrome') + ' si tenés Android.',
-        'Seguí los tres pasos para agregarla a la pantalla de inicio.'
+        L('Copiá el link de abajo y mandátelo al celular (por WhatsApp o por mail).', 'Copy the link below and send it to your phone (by text or email).'),
+        L('Abrilo en ' + B('Safari') + ' si tenés iPhone, o en ' + B('Chrome') + ' si tenés Android.', 'Open it in ' + B('Safari') + ' on iPhone, or in ' + B('Chrome') + ' on Android.'),
+        L('Seguí los tres pasos para agregarla a la pantalla de inicio.', 'Follow the three steps to add it to your Home Screen.')
       ],
       copy: true, installBtn: true, desktop: true
     };
@@ -1112,7 +1186,7 @@ $('verTx').textContent = 'Versión ' + VERSION;
     const ex = $('insExtra'); ex.innerHTML = '';
     if (g.installBtn && deferred) {
       const b = document.createElement('button'); b.className = 'btn'; b.type = 'button';
-      b.textContent = g.desktop ? 'Instalar en esta computadora' : 'Instalar ahora';
+      b.textContent = g.desktop ? L('Instalar en esta computadora', 'Install on this computer') : L('Instalar ahora', 'Install now');
       b.addEventListener('click', async () => {
         try { deferred.prompt(); const r = await deferred.userChoice; if (r && r.outcome === 'accepted') hide(); } catch (e) {}
         deferred = null; render();
@@ -1122,16 +1196,16 @@ $('verTx').textContent = 'Versión ' + VERSION;
     if (g.copy) {
       const url = location.href.split('#')[0];
       const row = document.createElement('div'); row.className = 'copyrow';
-      row.innerHTML = '<code></code><button type="button">Copiar link</button>';
+      row.innerHTML = '<code></code><button type="button">' + L('Copiar link', 'Copy link') + '</button>';
       row.querySelector('code').textContent = url;
       const btn = row.querySelector('button');
       btn.addEventListener('click', () => {
-        const ok = () => { btn.textContent = 'Copiado'; setTimeout(() => btn.textContent = 'Copiar link', 1800); };
+        const ok = () => { btn.textContent = L('Copiado', 'Copied'); setTimeout(() => btn.textContent = L('Copiar link', 'Copy link'), 1800); };
         try { navigator.clipboard.writeText(url).then(ok, () => selectCode(row)); } catch (e) { selectCode(row); }
       });
       ex.appendChild(row);
     }
-    $('insSkip').textContent = g.desktop ? 'Usar en esta computadora' : 'Usar en el navegador por ahora';
+    $('insSkip').textContent = g.desktop ? L('Usar en esta computadora', 'Use on this computer') : L('Usar en el navegador por ahora', 'Use in the browser for now');
     const ptr = $('insPointer');
     if (g.pointer) {
       ptr.hidden = false; ptr.className = 'pointer ' + g.pointer.dir;
@@ -1147,14 +1221,41 @@ $('verTx').textContent = 'Versión ' + VERSION;
   $('insSkip').addEventListener('click', () => { try { sessionStorage.setItem('vocaliza-skip-install', '1'); } catch (e) {} hide(); });
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; if (!$('install').hidden) render(); });
   window.addEventListener('appinstalled', () => { if (!$('install').hidden) hide(); });
+  rerenderInstall = () => { if (!$('install').hidden) render(); };
   if (!skipped) show();
 })();
+
+/* ---------- Idioma: aplicar y cambiar ---------- */
+function applyLang() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = T(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = T(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', T(el.dataset.i18nAria)); });
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === LANG));
+  $('verTx').textContent = T('version') + VERSION;
+  $('doneRange').textContent = S.setup ? T('done') : T('doneFirst');
+  $('rangeTx').textContent = nn(S.low) + ' – ' + nn(S.high);
+  buildRangeKb(); centers = [];
+  if (!$('vRange').hidden) requestAnimationFrame(() => { measure(); paintRange(); });
+  if (!$('vScales').hidden) renderList();
+  lastSub = ''; renderPlay();
+  setOpen(player.classList.contains('open'));
+  if (P.playing) setNowPlaying('playing');
+  rerenderInstall();
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.lang === LANG) return;
+  LANG = b.dataset.lang;
+  try { localStorage.setItem('vocaliza-lang', LANG); } catch (e) {}
+  applyLang();
+}));
+applyLang();
 
 /* ---------- Aviso de actualización ---------- */
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2600); }
 try {
   const prev = localStorage.getItem('vocaliza-version');
-  if (prev && prev !== VERSION) setTimeout(() => toast('Vocaliza se actualizó'), 500);
+  if (prev && prev !== VERSION) setTimeout(() => toast(T('updated')), 500);
   localStorage.setItem('vocaliza-version', VERSION);
 } catch (e) {}
 
